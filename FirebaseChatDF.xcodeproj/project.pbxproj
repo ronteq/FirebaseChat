@@ -21,6 +21,7 @@
 		97AB70D41F5F0DAA0054CA9B /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AB70D31F5F0DAA0054CA9B /* User.swift */; };
 		97AB70D61F5F32560054CA9B /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AB70D51F5F32560054CA9B /* Message.swift */; };
 		97AB70D81F5F32EF0054CA9B /* MessageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AB70D71F5F32EF0054CA9B /* MessageService.swift */; };
+		97AB70DA1F5F406B0054CA9B /* ChatCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AB70D91F5F406B0054CA9B /* ChatCell.swift */; };
 		98287672D5184AC74C77D14B /* Pods_FirebaseChatDF.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2308B3D84268E5A8CD44DF11 /* Pods_FirebaseChatDF.framework */; };
 /* End PBXBuildFile section */
 
@@ -43,6 +44,7 @@
 		97AB70D31F5F0DAA0054CA9B /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = User.swift; path = Models/User.swift; sourceTree = "<group>"; };
 		97AB70D51F5F32560054CA9B /* Message.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Message.swift; path = Models/Message.swift; sourceTree = "<group>"; };
 		97AB70D71F5F32EF0054CA9B /* MessageService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MessageService.swift; path = Services/MessageService.swift; sourceTree = "<group>"; };
+		97AB70D91F5F406B0054CA9B /* ChatCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ChatCell.swift; path = Views/ChatCell.swift; sourceTree = "<group>"; };
 		B3063C6CF59D91650E1F71FE /* Pods-FirebaseChatDF.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FirebaseChatDF.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FirebaseChatDF/Pods-FirebaseChatDF.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -126,6 +128,7 @@
 			children = (
 				97AB70B71F5F00F10054CA9B /* LaunchScreen.storyboard */,
 				97AB70B21F5F00F10054CA9B /* Main.storyboard */,
+				97AB70D91F5F406B0054CA9B /* ChatCell.swift */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -282,6 +285,7 @@
 			files = (
 				97AB70CE1F5F05B00054CA9B /* HomeViewController.swift in Sources */,
 				97AB70D01F5F08310054CA9B /* NewMessageViewController.swift in Sources */,
+				97AB70DA1F5F406B0054CA9B /* ChatCell.swift in Sources */,
 				97AB70AF1F5F00F10054CA9B /* AppDelegate.swift in Sources */,
 				97AB70D61F5F32560054CA9B /* Message.swift in Sources */,
 				97AB70D21F5F09A10054CA9B /* ChatViewController.swift in Sources */,

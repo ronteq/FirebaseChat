@@ -18,7 +18,7 @@ class ChatViewController: UIViewController {
         cv.delegate = self
         cv.dataSource = self
         cv.alwaysBounceVertical = true
-        cv.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "cell")
+        cv.register(ChatCell.self, forCellWithReuseIdentifier: "cell")
         return cv
     }()
     
@@ -47,8 +47,15 @@ class ChatViewController: UIViewController {
     
     var user: User!
     
+    var messages = [Message]()
+    
     let messageService = MessageService()
 
+    deinit {
+        print("ChatViewController deleted")
+        messageService.removeObservers()
+    }
+    
 }
 
 //MARK: Life cycle
@@ -136,6 +143,9 @@ extension ChatViewController{
         guard let message = messageTextField.text, message.characters.count > 0 else { return }
         
         sendMessage(message)
+        
+        messageTextField.text = nil
+        
     }
     
 }
@@ -145,7 +155,15 @@ extension ChatViewController{
 extension ChatViewController{
     
     fileprivate func observeForMessages(){
-        
+        messageService.observeMessages(toId: user.id) { [weak self] (messages) in
+            for message in messages{
+                self?.messages.append(message)
+            }
+            
+            OperationQueue.main.addOperation {
+                self?.collectionView.reloadData()
+            }
+        }
     }
     
     fileprivate func sendMessage(_ message: String){
@@ -168,13 +186,14 @@ extension ChatViewController: UICollectionViewDelegate{
 extension ChatViewController: UICollectionViewDataSource{
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 5
+        return messages.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath)
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! ChatCell
         
         cell.backgroundColor = UIColor.orange
+        cell.messageText.text = messages[indexPath.row].message
         
         return cell
     }
