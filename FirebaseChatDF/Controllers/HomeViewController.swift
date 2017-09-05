@@ -31,7 +31,6 @@ extension HomeViewController{
 extension HomeViewController{
     
     fileprivate func initialSetup(){
-        navigationItem.hidesBackButton = true
         navigationItem.title = "Home"
         view.backgroundColor = UIColor.white
         addBarButtonsItems()
@@ -68,7 +67,8 @@ extension HomeViewController{
 extension HomeViewController{
     
     func pushToChat(){
-        
+        let chatController = ChatViewController()
+        navigationController?.pushViewController(chatController, animated: true)
     }
     
 }

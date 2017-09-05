@@ -36,7 +36,8 @@ extension AuthViewController{
     
     override func viewDidLoad() {
         super.viewDidLoad()
-     
+        
+        checkIfUserIsLogged()
     }
     
 }
@@ -44,6 +45,12 @@ extension AuthViewController{
 //MARK: Private methods
 
 extension AuthViewController{
+    
+    fileprivate func checkIfUserIsLogged(){
+        if userService.isUserLogged(){
+            self.pushToHomeViewController()
+        }
+    }
     
     fileprivate func login(){
         guard let email = emailTextField.text,

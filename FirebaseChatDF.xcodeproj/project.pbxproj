@@ -18,6 +18,7 @@
 		97AB70CE1F5F05B00054CA9B /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AB70CD1F5F05B00054CA9B /* HomeViewController.swift */; };
 		97AB70D01F5F08310054CA9B /* NewMessageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AB70CF1F5F08310054CA9B /* NewMessageViewController.swift */; };
 		97AB70D21F5F09A10054CA9B /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AB70D11F5F09A10054CA9B /* ChatViewController.swift */; };
+		97AB70D41F5F0DAA0054CA9B /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AB70D31F5F0DAA0054CA9B /* User.swift */; };
 		98287672D5184AC74C77D14B /* Pods_FirebaseChatDF.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2308B3D84268E5A8CD44DF11 /* Pods_FirebaseChatDF.framework */; };
 /* End PBXBuildFile section */
 
@@ -37,6 +38,7 @@
 		97AB70CD1F5F05B00054CA9B /* HomeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = HomeViewController.swift; path = Controllers/HomeViewController.swift; sourceTree = "<group>"; };
 		97AB70CF1F5F08310054CA9B /* NewMessageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NewMessageViewController.swift; path = Controllers/NewMessageViewController.swift; sourceTree = "<group>"; };
 		97AB70D11F5F09A10054CA9B /* ChatViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ChatViewController.swift; path = Controllers/ChatViewController.swift; sourceTree = "<group>"; };
+		97AB70D31F5F0DAA0054CA9B /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = User.swift; path = Models/User.swift; sourceTree = "<group>"; };
 		B3063C6CF59D91650E1F71FE /* Pods-FirebaseChatDF.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FirebaseChatDF.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FirebaseChatDF/Pods-FirebaseChatDF.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -97,6 +99,7 @@
 		97AB70C31F5F034B0054CA9B /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				97AB70D31F5F0DAA0054CA9B /* User.swift */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -275,6 +278,7 @@
 				97AB70D01F5F08310054CA9B /* NewMessageViewController.swift in Sources */,
 				97AB70AF1F5F00F10054CA9B /* AppDelegate.swift in Sources */,
 				97AB70D21F5F09A10054CA9B /* ChatViewController.swift in Sources */,
+				97AB70D41F5F0DAA0054CA9B /* User.swift in Sources */,
 				97AB70CA1F5F03B10054CA9B /* AuthViewController.swift in Sources */,
 				97AB70C81F5F038C0054CA9B /* UserService.swift in Sources */,
 				97AB70CC1F5F044D0054CA9B /* FirebasePaths.swift in Sources */,
