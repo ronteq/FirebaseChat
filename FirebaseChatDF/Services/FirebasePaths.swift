@@ -10,4 +10,6 @@ import Foundation
 
 struct FirebasePaths{
     static let users = "users"
+    static let userMessages = "userMessages"
+    static let messages = "messages"
 }

@@ -115,7 +115,7 @@ extension NewMessageViewController: UITableViewDelegate{
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         dismiss(animated: true) {
-            self.homeController?.pushToChat() //send user
+            self.homeController?.pushToChat(user: self.users[indexPath.row])
         }
     }
     

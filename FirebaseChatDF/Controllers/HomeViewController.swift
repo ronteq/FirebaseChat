@@ -66,8 +66,9 @@ extension HomeViewController{
 
 extension HomeViewController{
     
-    func pushToChat(){
+    func pushToChat(user: User){
         let chatController = ChatViewController()
+        chatController.user = user
         navigationController?.pushViewController(chatController, animated: true)
     }
     

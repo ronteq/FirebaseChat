@@ -77,12 +77,19 @@ extension UserService{
         
         var users = [User]()
         
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        
         userRef.observeSingleEvent(of: .value, with: { (snapshot) in
             
             //BUILDER
             for child in snapshot.children{
                 guard let snap = child as? DataSnapshot else { return }
                 guard var userInfo = snap.value as? [String: AnyObject] else { return }
+                
+                if uid == snap.key{
+                    continue
+                }
+                
                 userInfo["id"] = snap.key as AnyObject
                 
                 guard let user = User(withDictionary: userInfo) else { return }
