@@ -102,6 +102,21 @@ extension UserService{
         
     }
     
-    
+    func getUserFromId(_ id: String, completion: @escaping(User)-> Void){
+        let databaseRef = Database.database().reference()
+        let userRef = databaseRef.child(FirebasePaths.users).child(id)
+        
+        userRef.observeSingleEvent(of: .value, with: { (snapshot) in
+            
+            guard var userInfo = snapshot.value as? [String: AnyObject] else { return }
+            
+            userInfo["id"] = snapshot.key as AnyObject
+            
+            guard let user = User(withDictionary: userInfo) else { return }
+            
+            completion(user)
+            
+        })
+    }
     
 }

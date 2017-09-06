@@ -25,8 +25,6 @@ class Message{
         }else{
             self.timestamp = Date().timeIntervalSince1970
         }
-        
-        
     }
     
     convenience init?(withDictionary dictionary: [String: AnyObject]){
@@ -47,6 +45,13 @@ class Message{
         ]
         
         return messageInfo
+    }
+    
+    func formatDate()-> String{
+        let date = Date(timeIntervalSince1970: timestamp)
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "hh:mm:ss a"
+        return dateFormatter.string(from: date)
     }
     
 }

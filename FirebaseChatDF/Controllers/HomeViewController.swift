@@ -9,8 +9,20 @@
 import UIKit
 
 class HomeViewController: UIViewController {
-
+    
+    fileprivate lazy var tableView: UITableView = {
+        let tv = UITableView()
+        tv.translatesAutoresizingMaskIntoConstraints = false
+        tv.delegate = self
+        tv.dataSource = self
+        tv.register(HomeCell.self, forCellReuseIdentifier: "cell")
+        return tv
+    }()
+    
     let userService = UserService()
+    let messageService = MessageService()
+    
+    var messages = [Message]()
 
 }
 
@@ -22,6 +34,9 @@ extension HomeViewController{
         super.viewDidLoad()
         
         initialSetup()
+        observeForAddedMessages()
+        observeForUpdatedMessages()
+        setupTableView()
     }
     
 }
@@ -39,6 +54,15 @@ extension HomeViewController{
     fileprivate func addBarButtonsItems(){
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(HomeViewController.logoutBarBtnTapped))
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "New", style: .plain, target: self, action: #selector(HomeViewController.newBarBtnTapped))
+    }
+    
+    fileprivate func setupTableView(){
+        view.addSubview(tableView)
+        
+        tableView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
     }
     
 }
@@ -70,6 +94,69 @@ extension HomeViewController{
         let chatController = ChatViewController()
         chatController.user = user
         navigationController?.pushViewController(chatController, animated: true)
+    }
+    
+    fileprivate func observeForAddedMessages(){
+        messageService.observeAddedMessages { (messages) in
+            self.messages.removeAll()
+            self.messages = messages
+            
+            OperationQueue.main.addOperation {
+                self.tableView.reloadData()
+            }
+        }
+    }
+    
+    fileprivate func observeForUpdatedMessages(){
+        messageService.observeUpdateddMessages { (messages) in
+            self.messages.removeAll()
+            self.messages = messages
+            
+            OperationQueue.main.addOperation {
+                self.tableView.reloadData()
+            }
+        }
+    }
+    
+    fileprivate func getUserFromId(_ id: String, completion: @escaping(_ user: User)-> Void){
+        userService.getUserFromId(id) { (user) in
+            completion(user)
+        }
+    }
+    
+}
+
+//MARK: UITableViewDelegate
+
+extension HomeViewController: UITableViewDelegate{
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let toId = messages[indexPath.row].toId
+        getUserFromId(toId) { (user) in
+            self.pushToChat(user: user)
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 70
+    }
+    
+}
+
+//MARK: UITableViewDataSource
+
+extension HomeViewController: UITableViewDataSource{
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return messages.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! HomeCell
+        
+        cell.message = messages[indexPath.row]
+        
+        return cell
     }
     
 }

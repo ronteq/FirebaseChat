@@ -155,7 +155,7 @@ extension ChatViewController{
 extension ChatViewController{
     
     fileprivate func observeForMessages(){
-        messageService.observeMessages(toId: user.id) { [weak self] (messages) in
+        messageService.observeMessagesForUser(user.id) { [weak self] (messages) in
             for message in messages{
                 self?.messages.append(message)
             }
