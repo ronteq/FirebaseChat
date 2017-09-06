@@ -62,7 +62,7 @@ extension UserService{
         let databaseRef = Database.database().reference()
         let userRef = databaseRef.child(FirebasePaths.users).child(uid)
         
-        userRef.setValue(["email": email])
+        userRef.setValue([User.JSONKeys.email: email])
     }
     
 }
@@ -90,7 +90,7 @@ extension UserService{
                     continue
                 }
                 
-                userInfo["id"] = snap.key as AnyObject
+                userInfo[User.JSONKeys.id] = snap.key as AnyObject
                 
                 guard let user = User(withDictionary: userInfo) else { return }
                 users.append(user)
@@ -110,7 +110,7 @@ extension UserService{
             
             guard var userInfo = snapshot.value as? [String: AnyObject] else { return }
             
-            userInfo["id"] = snapshot.key as AnyObject
+            userInfo[User.JSONKeys.id] = snapshot.key as AnyObject
             
             guard let user = User(withDictionary: userInfo) else { return }
             

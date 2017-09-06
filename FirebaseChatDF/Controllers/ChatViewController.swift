@@ -69,6 +69,12 @@ extension ChatViewController{
         observeForMessages()
     }
     
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        
+        collectionView.collectionViewLayout.invalidateLayout()
+    }
+    
 }
 
 //MARK: Initial setup
@@ -125,6 +131,8 @@ extension ChatViewController{
     fileprivate func setupCollectionView(){
         view.addSubview(collectionView)
         
+        collectionView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
+        
         collectionView.topAnchor.constraint(equalTo: view.topAnchor, constant: 64).isActive = true
         collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
@@ -173,6 +181,14 @@ extension ChatViewController{
         messageService.sendMessage(toId: toId, message: message)
     }
     
+    fileprivate func estimatedFrameForText(_ text: String)-> CGRect{
+        
+        let size = CGSize(width: (view.frame.width / 2), height: 100000)
+        let options = NSStringDrawingOptions.usesFontLeading.union(.usesLineFragmentOrigin)
+        
+        return NSString(string: text).boundingRect(with: size, options: options, attributes: [NSFontAttributeName: UIFont.systemFont(ofSize: 16)], context: nil)
+    }
+    
 }
 
 //MARK: UICollectionViewDelegate
@@ -192,8 +208,8 @@ extension ChatViewController: UICollectionViewDataSource{
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! ChatCell
         
-        cell.backgroundColor = UIColor.orange
         cell.messageText.text = messages[indexPath.row].message
+        cell.bubbleWidthAnchor.constant = estimatedFrameForText(messages[indexPath.row].message).width + ConstraintConstants.widthHeightPlusForEstimation
         
         return cell
     }
@@ -205,7 +221,20 @@ extension ChatViewController: UICollectionViewDataSource{
 extension ChatViewController: UICollectionViewDelegateFlowLayout{
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: view.frame.width, height: 50)
+        
+        let height = estimatedFrameForText(messages[indexPath.item].message).height + ConstraintConstants.widthHeightPlusForEstimation
+        
+        return CGSize(width: view.frame.width, height: height)
+    }
+    
+}
+
+//MARK: Constants
+
+extension ChatViewController{
+    
+    fileprivate struct ConstraintConstants{
+        static let widthHeightPlusForEstimation: CGFloat = 30
     }
     
 }

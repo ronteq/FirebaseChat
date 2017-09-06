@@ -31,7 +31,7 @@ class User{
 }
 
 extension User{
-    fileprivate struct JSONKeys{
+    struct JSONKeys{
         static let id = "id"
         static let name = "name"
         static let email = "email"

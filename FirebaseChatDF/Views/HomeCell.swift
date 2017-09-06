@@ -73,10 +73,11 @@ extension HomeCell{
         
         messageLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 8).isActive = true
         messageLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16).isActive = true
-        messageLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16).isActive = true
         
+        timestampLabel.leadingAnchor.constraint(equalTo: messageLabel.trailingAnchor, constant: 16).isActive = true
         timestampLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8).isActive = true
         timestampLabel.centerYAnchor.constraint(equalTo: messageLabel.centerYAnchor).isActive = true
+        timestampLabel.widthAnchor.constraint(equalToConstant: 70).isActive = true
     }
     
 }

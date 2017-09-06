@@ -55,8 +55,8 @@ extension MessageService{
         let lastUserMessageRef = databaseRef.child(FirebasePaths.lastUserMessage).child(fromId)
         
         let messageInfo: [String: Any] = [
-            "message": message,
-            "timestamp": timestamp
+            Message.JSONKeys.message: message,
+            Message.JSONKeys.timestamp: timestamp
         ]
         
         let dataToSend: [String: Any] = [
