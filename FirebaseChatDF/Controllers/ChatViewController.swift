@@ -20,13 +20,8 @@ class ChatViewController: UIViewController {
         cv.alwaysBounceVertical = true
         cv.register(ChatCell.self, forCellWithReuseIdentifier: "cell")
         cv.register(InconmingChatCell.self, forCellWithReuseIdentifier: "incomingCell")
+        cv.keyboardDismissMode = .interactive
         return cv
-    }()
-    
-    fileprivate let inputSectionContainer: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
     }()
     
     fileprivate let messageTextField: UITextField = {
@@ -46,15 +41,58 @@ class ChatViewController: UIViewController {
         return button
     }()
     
+    fileprivate lazy var inputSection: UIView = {
+        let inputSection = UIView()
+        inputSection.backgroundColor = UIColor.white
+        inputSection.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 50)
+        
+        inputSection.addSubview(self.messageTextField)
+        inputSection.addSubview(self.sendButton)
+        
+        self.sendButton.topAnchor.constraint(equalTo: inputSection.topAnchor).isActive = true
+        self.sendButton.trailingAnchor.constraint(equalTo: inputSection.trailingAnchor).isActive = true
+        self.sendButton.bottomAnchor.constraint(equalTo: inputSection.bottomAnchor).isActive = true
+        self.sendButton.widthAnchor.constraint(equalToConstant: 70).isActive = true
+        
+        self.messageTextField.topAnchor.constraint(equalTo: inputSection.topAnchor).isActive = true
+        self.messageTextField.leadingAnchor.constraint(equalTo: inputSection.leadingAnchor, constant: 16).isActive = true
+        self.messageTextField.trailingAnchor.constraint(equalTo: self.sendButton.leadingAnchor).isActive = true
+        self.messageTextField.bottomAnchor.constraint(equalTo: inputSection.bottomAnchor).isActive = true
+        
+        let separatorView = UIView()
+        separatorView.translatesAutoresizingMaskIntoConstraints = false
+        separatorView.backgroundColor = UIColor.lightGray
+        
+        inputSection.addSubview(separatorView)
+        
+        separatorView.leadingAnchor.constraint(equalTo: inputSection.leadingAnchor).isActive = true
+        separatorView.trailingAnchor.constraint(equalTo: inputSection.trailingAnchor).isActive = true
+        separatorView.bottomAnchor.constraint(equalTo: inputSection.topAnchor).isActive = true
+        separatorView.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        
+        return inputSection
+    }()
+    
+    override var inputAccessoryView: UIView?{
+        get{
+            return inputSection
+        }
+    }
+    
+    override var canBecomeFirstResponder: Bool{
+        return true
+    }
+    
     var user: User!
     
     var messages = [Message]()
     
     let messageService = MessageService()
-
+    
     deinit {
         print("ChatViewController deleted")
         messageService.removeObservers()
+        NotificationCenter.default.removeObserver(self)
     }
     
 }
@@ -86,58 +124,35 @@ extension ChatViewController{
         view.backgroundColor = UIColor.white
         navigationItem.title = "Chat with \(user.name)"
         setupViews()
+        setupKeyboardObservers()
+        addTapGesture()
     }
     
     fileprivate func setupViews(){
-        setupInputSection()
-        setupSeparatorView()
         setupCollectionView()
-    }
-    
-    fileprivate func setupInputSection(){
-        view.addSubview(inputSectionContainer)
-        
-        inputSectionContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-        inputSectionContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
-        inputSectionContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        inputSectionContainer.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        
-        inputSectionContainer.addSubview(messageTextField)
-        inputSectionContainer.addSubview(sendButton)
-        
-        sendButton.topAnchor.constraint(equalTo: inputSectionContainer.topAnchor).isActive = true
-        sendButton.trailingAnchor.constraint(equalTo: inputSectionContainer.trailingAnchor).isActive = true
-        sendButton.bottomAnchor.constraint(equalTo: inputSectionContainer.bottomAnchor).isActive = true
-        sendButton.widthAnchor.constraint(equalToConstant: 70).isActive = true
-        
-        messageTextField.topAnchor.constraint(equalTo: inputSectionContainer.topAnchor).isActive = true
-        messageTextField.leadingAnchor.constraint(equalTo: inputSectionContainer.leadingAnchor, constant: 16).isActive = true
-        messageTextField.trailingAnchor.constraint(equalTo: sendButton.leadingAnchor).isActive = true
-        messageTextField.bottomAnchor.constraint(equalTo: inputSectionContainer.bottomAnchor).isActive = true
-    }
-    
-    fileprivate func setupSeparatorView(){
-        let separatorView = UIView()
-        separatorView.translatesAutoresizingMaskIntoConstraints = false
-        separatorView.backgroundColor = UIColor.lightGray
-        
-        view.addSubview(separatorView)
-        
-        separatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-        separatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        separatorView.bottomAnchor.constraint(equalTo: inputSectionContainer.topAnchor).isActive = true
-        separatorView.heightAnchor.constraint(equalToConstant: 1).isActive = true
     }
     
     fileprivate func setupCollectionView(){
         view.addSubview(collectionView)
         
-        collectionView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
+        collectionView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 0, right: 0)
         
         collectionView.topAnchor.constraint(equalTo: view.topAnchor, constant: 64).isActive = true
         collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        collectionView.bottomAnchor.constraint(equalTo: inputSectionContainer.topAnchor, constant: -1).isActive = true
+        collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+    }
+    
+    fileprivate func setupKeyboardObservers(){
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(ChatViewController.keyboardWillShow), name: Notification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(ChatViewController.keyboardWillHide), name: Notification.Name.UIKeyboardWillHide, object: nil)
+        
+    }
+    
+    fileprivate func addTapGesture(){
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(ChatViewController.handleTap))
+        view.addGestureRecognizer(tapGesture)
     }
     
 }
@@ -157,11 +172,33 @@ extension ChatViewController{
         
     }
     
+    @objc
+    fileprivate func handleTap(){
+        messageTextField.resignFirstResponder()
+    }
+    
 }
 
 //MARK: Private methods
 
 extension ChatViewController{
+    
+    @objc
+    fileprivate func keyboardWillShow(_ notification: Notification){
+        if let info = notification.userInfo as? [String: AnyObject],
+            let keyboardFrame = info[UIKeyboardFrameEndUserInfoKey]?.cgRectValue{
+            
+            collectionView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 8 + keyboardFrame.height, right: 0)
+            
+        }
+    }
+    
+    @objc
+    fileprivate func keyboardWillHide(_ notification: Notification){
+        
+        collectionView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 0, right: 0)
+        
+    }
     
     fileprivate func observeForMessages(){
         messageService.observeMessagesForUser(user.id) { [weak self] (messages) in
