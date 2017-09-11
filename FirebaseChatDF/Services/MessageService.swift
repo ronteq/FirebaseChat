@@ -18,6 +18,11 @@ struct MessageService{
         databaseRef.removeAllObservers()
     }
     
+    func isMessageFromCurrentUser(_ message: Message)-> Bool{
+        guard let uid = Auth.auth().currentUser?.uid else { return true }
+        return message.fromId == uid
+    }
+    
 }
 
 //MARK: Creating message

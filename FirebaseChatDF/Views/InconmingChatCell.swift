@@ -9,13 +9,13 @@
 import Foundation
 import UIKit
 
-class ChatCell: UICollectionViewCell{
+class InconmingChatCell: UICollectionViewCell{
     
     fileprivate let bubbleView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.layer.cornerRadius = 10
-        view.backgroundColor = UIColor.orange
+        view.backgroundColor = UIColor(red: 240/255, green: 240/255, blue: 240/255, alpha: 1.0)
         return view
     }()
     
@@ -24,7 +24,7 @@ class ChatCell: UICollectionViewCell{
         tv.translatesAutoresizingMaskIntoConstraints = false
         tv.font = UIFont.systemFont(ofSize: 16)
         tv.backgroundColor = UIColor.clear
-        tv.textColor = UIColor.white
+        tv.textColor = UIColor.darkGray
         tv.isUserInteractionEnabled = false
         return tv
     }()
@@ -44,7 +44,7 @@ class ChatCell: UICollectionViewCell{
     
 }
 
-extension ChatCell{
+extension InconmingChatCell{
     
     fileprivate func setupViews(){
         setupBubbleView()
@@ -55,7 +55,7 @@ extension ChatCell{
         addSubview(bubbleView)
         
         bubbleView.topAnchor.constraint(equalTo: topAnchor).isActive = true
-        bubbleView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8).isActive = true
+        bubbleView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8).isActive = true
         bubbleView.heightAnchor.constraint(equalTo: heightAnchor).isActive = true
         bubbleWidthAnchor = bubbleView.widthAnchor.constraint(equalToConstant: frame.width / 2)
         

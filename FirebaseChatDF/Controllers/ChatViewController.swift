@@ -19,6 +19,7 @@ class ChatViewController: UIViewController {
         cv.dataSource = self
         cv.alwaysBounceVertical = true
         cv.register(ChatCell.self, forCellWithReuseIdentifier: "cell")
+        cv.register(InconmingChatCell.self, forCellWithReuseIdentifier: "incomingCell")
         return cv
     }()
     
@@ -206,12 +207,21 @@ extension ChatViewController: UICollectionViewDataSource{
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! ChatCell
         
-        cell.messageText.text = messages[indexPath.row].message
-        cell.bubbleWidthAnchor.constant = estimatedFrameForText(messages[indexPath.row].message).width + ConstraintConstants.widthHeightPlusForEstimation
+        let message = messages[indexPath.item]
         
-        return cell
+        if messageService.isMessageFromCurrentUser(message){
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! ChatCell
+            cell.messageText.text = message.message
+            cell.bubbleWidthAnchor.constant = estimatedFrameForText(message.message).width + ConstraintConstants.widthHeightPlusForEstimation
+            return cell
+        }else{
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "incomingCell", for: indexPath) as! InconmingChatCell
+            cell.messageText.text = message.message
+            cell.bubbleWidthAnchor.constant = estimatedFrameForText(message.message).width + ConstraintConstants.widthHeightPlusForEstimation
+            return cell
+        }
+        
     }
     
 }
@@ -234,7 +244,7 @@ extension ChatViewController: UICollectionViewDelegateFlowLayout{
 extension ChatViewController{
     
     fileprivate struct ConstraintConstants{
-        static let widthHeightPlusForEstimation: CGFloat = 30
+        static let widthHeightPlusForEstimation: CGFloat = 25
     }
     
 }
