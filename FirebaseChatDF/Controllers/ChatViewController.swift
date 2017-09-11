@@ -83,6 +83,8 @@ class ChatViewController: UIViewController {
         return true
     }
     
+    var timerToUpdateCollectionView: Timer?
+    
     var user: User!
     
     var messages = [Message]()
@@ -135,8 +137,6 @@ extension ChatViewController{
     fileprivate func setupCollectionView(){
         view.addSubview(collectionView)
         
-        collectionView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 0, right: 0)
-        
         collectionView.topAnchor.constraint(equalTo: view.topAnchor, constant: 64).isActive = true
         collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
@@ -188,15 +188,16 @@ extension ChatViewController{
         if let info = notification.userInfo as? [String: AnyObject],
             let keyboardFrame = info[UIKeyboardFrameEndUserInfoKey]?.cgRectValue{
             
-            collectionView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 8 + keyboardFrame.height, right: 0)
+            collectionView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: keyboardFrame.height + 8, right: 0)
+            goToBottomInCollectionView()
             
         }
     }
     
     @objc
     fileprivate func keyboardWillHide(_ notification: Notification){
-        
-        collectionView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 0, right: 0)
+            
+        collectionView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: inputSection.frame.height + 8, right: 0)
         
     }
     
@@ -206,9 +207,16 @@ extension ChatViewController{
                 self?.messages.append(message)
             }
             
-            OperationQueue.main.addOperation {
-                self?.collectionView.reloadData()
-            }
+            self?.timerToUpdateCollectionView?.invalidate()
+            self?.timerToUpdateCollectionView = Timer.scheduledTimer(timeInterval: 0.1, target: self!, selector: #selector(ChatViewController.updateCollectionView), userInfo: nil, repeats: false)
+        }
+    }
+    
+    @objc
+    fileprivate func updateCollectionView(){
+        OperationQueue.main.addOperation {
+            self.collectionView.reloadData()
+            self.goToBottomInCollectionView()
         }
     }
     
@@ -217,14 +225,24 @@ extension ChatViewController{
         let toId = user.id
         
         messageService.sendMessage(toId: toId, message: message)
+        
     }
     
     fileprivate func estimatedFrameForText(_ text: String)-> CGRect{
-        
-        let size = CGSize(width: (view.frame.width / 2), height: 100000)
+        let screenWidth = UIScreen.main.bounds.width
+        let size = CGSize(width: (screenWidth / 2), height: 100000)
         let options = NSStringDrawingOptions.usesFontLeading.union(.usesLineFragmentOrigin)
         
         return NSString(string: text).boundingRect(with: size, options: options, attributes: [NSFontAttributeName: UIFont.systemFont(ofSize: 16)], context: nil)
+    }
+    
+    fileprivate func goToBottomInCollectionView(){
+        let index = messages.count - 1
+        
+        if index > 1{
+            collectionView.scrollToItem(at: IndexPath(item: index, section: 0), at: .bottom, animated: true)
+        }
+        
     }
     
 }
@@ -269,9 +287,10 @@ extension ChatViewController: UICollectionViewDelegateFlowLayout{
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
+        let screenWidth = UIScreen.main.bounds.width
         let height = estimatedFrameForText(messages[indexPath.item].message).height + ConstraintConstants.widthHeightPlusForEstimation
         
-        return CGSize(width: view.frame.width, height: height)
+        return CGSize(width: screenWidth, height: height)
     }
     
 }
