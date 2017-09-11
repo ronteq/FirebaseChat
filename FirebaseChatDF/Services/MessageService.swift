@@ -148,33 +148,4 @@ extension MessageService{
         
     }
     
-    func observeUpdateddMessages(completion: @escaping(_ messages: [Message])->Void){
-        
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        
-        let lastUserMessageRef = databaseRef.child(FirebasePaths.lastUserMessage).child(uid)
-        
-        var messages = [Message]()
-        
-        lastUserMessageRef.observe(.childChanged, with: {(snapshot) in
-            
-            guard var messageDictionary = snapshot.value as? [String: AnyObject] else { return }
-            messageDictionary[Message.JSONKeys.fromId] = uid as AnyObject
-            messageDictionary[Message.JSONKeys.toId] = snapshot.key as AnyObject
-            
-            guard let message = Message(withDictionary: messageDictionary) else { return }
-            messages.append(message)
-            
-            messages.sort(by: { (message1, message2) -> Bool in
-                let timestamp1 = Double(message1.timestamp)
-                let timestamp2 = Double(message2.timestamp)
-                return timestamp1 > timestamp2
-            })
-            
-            completion(messages)
-            
-        })
-        
-    }
-    
 }

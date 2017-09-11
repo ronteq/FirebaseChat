@@ -23,6 +23,11 @@ class HomeViewController: UIViewController {
     let messageService = MessageService()
     
     var messages = [Message]()
+    
+    deinit {
+        print("HomeViewController deleted")
+        messageService.removeObservers()
+    }
 
 }
 
@@ -34,9 +39,13 @@ extension HomeViewController{
         super.viewDidLoad()
         
         initialSetup()
-        observeForAddedMessages()
-        observeForUpdatedMessages()
         setupTableView()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        observeForAddedMessages()
     }
     
 }
@@ -98,17 +107,6 @@ extension HomeViewController{
     
     fileprivate func observeForAddedMessages(){
         messageService.observeAddedMessages { (messages) in
-            self.messages.removeAll()
-            self.messages = messages
-            
-            OperationQueue.main.addOperation {
-                self.tableView.reloadData()
-            }
-        }
-    }
-    
-    fileprivate func observeForUpdatedMessages(){
-        messageService.observeUpdateddMessages { (messages) in
             self.messages.removeAll()
             self.messages = messages
             
