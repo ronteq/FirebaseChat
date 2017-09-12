@@ -141,6 +141,10 @@ extension ChatViewController{
         collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        
+        let refresher = UIRefreshControl()
+        refresher.addTarget(self, action: #selector(ChatViewController.loadOldMessages), for: .valueChanged)
+        collectionView.addSubview(refresher)
     }
     
     fileprivate func setupKeyboardObservers(){
@@ -160,6 +164,23 @@ extension ChatViewController{
 //MARK: Handling methods
 
 extension ChatViewController{
+
+    @objc
+    fileprivate func loadOldMessages(_ refresher: UIRefreshControl){
+        
+        guard let oldestMessage = messages.first else { return }
+        
+        messageService.loadOldMessagesForUser(user.id, lastMessageKey: oldestMessage.messageId) { (messages) in
+            refresher.endRefreshing()
+            
+            var newMessages = messages
+            newMessages += self.messages
+            self.messages = newMessages
+            
+            self.collectionView.reloadData()
+        }
+        
+    }
     
     @objc
     fileprivate func sendButtonTapped(){
@@ -202,10 +223,9 @@ extension ChatViewController{
     }
     
     fileprivate func observeForMessages(){
-        messageService.observeMessagesForUser(user.id) { [weak self] (messages) in
-            for message in messages{
-                self?.messages.append(message)
-            }
+        messageService.observeMessagesForUser(user.id) { [weak self] (message) in
+            
+            self?.messages.append(message)
             
             self?.timerToUpdateCollectionView?.invalidate()
             self?.timerToUpdateCollectionView = Timer.scheduledTimer(timeInterval: 0.1, target: self!, selector: #selector(ChatViewController.updateCollectionView), userInfo: nil, repeats: false)

@@ -10,10 +10,24 @@ import Foundation
 
 class Message{
     
+    var messageId: String = ""
     var toId: String
     var fromId: String
     var message: String
     var timestamp: Double
+    
+    init(messageId: String, toId: String, fromId: String, message: String, timestamp: Double?) {
+        self.messageId = messageId
+        self.toId = toId
+        self.fromId = fromId
+        self.message = message
+        
+        if let timestamp = timestamp{
+            self.timestamp = timestamp
+        }else{
+            self.timestamp = Date().timeIntervalSince1970
+        }
+    }
     
     init(toId: String, fromId: String, message: String, timestamp: Double?) {
         self.toId = toId
@@ -33,7 +47,12 @@ class Message{
             let message = dictionary[JSONKeys.message] as? String,
             let timestamp = dictionary[JSONKeys.timestamp] as? Double else { return nil }
         
-        self.init(toId: toId, fromId: fromId, message: message, timestamp: timestamp)
+        if let messageId = dictionary[JSONKeys.messageId] as? String{
+            self.init(messageId: messageId, toId: toId, fromId: fromId, message: message, timestamp: timestamp)
+        }else{
+            self.init(toId: toId, fromId: fromId, message: message, timestamp: timestamp)
+        }
+        
     }
     
     func convertToDictionary()-> [String: Any]{
@@ -59,6 +78,7 @@ class Message{
 extension Message{
     
     struct JSONKeys{
+        static let messageId = "messageId"
         static let toId = "toId"
         static let fromId = "fromId"
         static let message = "message"

@@ -39,16 +39,16 @@ extension MessageService{
         let messageInfo = myMessage.convertToDictionary()
         
         messagesRef.setValue(messageInfo) { (error, reference) in
-            self.createUserMessageAssociation(messageKey: reference.key, userId: fromId)
-            self.createUserMessageAssociation(messageKey: reference.key, userId: toId)
+            self.createUserMessageAssociation(messageKey: reference.key, userIdOne: fromId, userIdTwo: toId)
+            self.createUserMessageAssociation(messageKey: reference.key, userIdOne: toId, userIdTwo: fromId)
             self.createLastMessageForUser(fromId: fromId, toId: toId, message: message, timestamp: myMessage.timestamp)
             self.createLastMessageForUser(fromId: toId, toId: fromId, message: message, timestamp: myMessage.timestamp)
         }
     }
     
-    private func createUserMessageAssociation(messageKey: String, userId: String){
+    private func createUserMessageAssociation(messageKey: String, userIdOne: String, userIdTwo: String){
         
-        let userMessageRef = databaseRef.child(FirebasePaths.userMessages).child(userId)
+        let userMessageRef = databaseRef.child(FirebasePaths.userMessages).child(userIdOne).child(userIdTwo)
         
         let messageInfo = [messageKey: true]
         
@@ -78,39 +78,74 @@ extension MessageService{
 
 extension MessageService{
     
-    func observeMessagesForUser(_ toId: String, completion: @escaping(_ messages: [Message])->Void){
+    func observeMessagesForUser(_ toId: String, completion: @escaping(_ messages: Message)->Void){
         
         guard let uid = Auth.auth().currentUser?.uid else { return }
         
-        let userMessageRef = databaseRef.child(FirebasePaths.userMessages).child(uid)
+        let userMessageRef = databaseRef.child(FirebasePaths.userMessages).child(uid).child(toId)
         
-        userMessageRef.observe(.childAdded, with: {(snapshot) in
+        userMessageRef.queryLimited(toLast: 5).observe(.childAdded, with: {(snapshot) in
             
             let messageKey = snapshot.key
-            self.getDetailMessageForUser(messageKey: messageKey, forUserId: toId, completion: { (messages) in
-                completion(messages)
+            self.getDetailMessageForUser(messageKey: messageKey, completion: { (message) in
+                completion(message)
             })
             
         })
     }
     
-    private func getDetailMessageForUser(messageKey: String, forUserId: String, completion: @escaping(_ messages: [Message])-> Void){
-        
-        var messages = [Message]()
+    private func getDetailMessageForUser(messageKey: String, completion: @escaping(_ messages: Message)-> Void){
         
         let messageRef = databaseRef.child(FirebasePaths.messages).child(messageKey)
         
         messageRef.observeSingleEvent(of: .value, with: {(snapshot) in
             
-            guard let messageDictionary = snapshot.value as? [String: AnyObject] else { return }
+            guard var messageDictionary = snapshot.value as? [String: AnyObject] else { return }
+            
+            messageDictionary[Message.JSONKeys.messageId] = messageKey as AnyObject
+            
             guard let message = Message(withDictionary: messageDictionary) else { return }
             
-            if message.toId == forUserId || message.fromId == forUserId{
-                messages.append(message)
+            completion(message)
+        })
+    }
+    
+    func loadOldMessagesForUser(_ toId: String, lastMessageKey: String, completion: @escaping(_ messages: [Message])->Void){
+        
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        
+        var oldestMessages = [Message]()
+        let dispatchGroup = DispatchGroup()
+        
+        let userMessageRef = databaseRef.child(FirebasePaths.userMessages).child(uid).child(toId)
+        
+        userMessageRef.queryOrderedByKey().queryEnding(atValue: lastMessageKey).queryLimited(toLast: 6).observeSingleEvent(of: .value, with: {(snapshot) in
+            
+            for child in snapshot.children{
+                
+                dispatchGroup.enter()
+                
+                guard let snap = child as? DataSnapshot else { return }
+                let messageKey = snap.key
+                
+                self.getDetailMessageForUser(messageKey: messageKey, completion: { (message) in
+                    
+                    if message.messageId != lastMessageKey{
+                        oldestMessages.append(message)
+                    }
+                    
+                    dispatchGroup.leave()
+                    
+                })
+                
             }
             
-            completion(messages)
+            dispatchGroup.notify(queue: .main, execute: { 
+                completion(oldestMessages)
+            })
+            
         })
+        
     }
     
 }
