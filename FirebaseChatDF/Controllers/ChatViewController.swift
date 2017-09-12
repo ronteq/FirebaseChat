@@ -18,10 +18,23 @@ class ChatViewController: UIViewController {
         cv.delegate = self
         cv.dataSource = self
         cv.alwaysBounceVertical = true
-        cv.register(ChatCell.self, forCellWithReuseIdentifier: "cell")
+        cv.register(UserChatCell.self, forCellWithReuseIdentifier: "cell")
         cv.register(InconmingChatCell.self, forCellWithReuseIdentifier: "incomingCell")
         cv.keyboardDismissMode = .interactive
         return cv
+    }()
+    
+    fileprivate lazy var clipImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.image = #imageLiteral(resourceName: "clip")
+        imageView.contentMode = .scaleAspectFit
+        imageView.isUserInteractionEnabled = true
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(ChatViewController.clipImageViewTapped))
+        imageView.addGestureRecognizer(tapGesture)
+        
+        return imageView
     }()
     
     fileprivate let messageTextField: UITextField = {
@@ -46,8 +59,14 @@ class ChatViewController: UIViewController {
         inputSection.backgroundColor = UIColor.white
         inputSection.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 50)
         
+        inputSection.addSubview(self.clipImageView)
         inputSection.addSubview(self.messageTextField)
         inputSection.addSubview(self.sendButton)
+        
+        self.clipImageView.centerYAnchor.constraint(equalTo: inputSection.centerYAnchor).isActive = true
+        self.clipImageView.leadingAnchor.constraint(equalTo: inputSection.leadingAnchor, constant: 16).isActive = true
+        self.clipImageView.widthAnchor.constraint(equalToConstant: 25).isActive = true
+        self.clipImageView.heightAnchor.constraint(equalToConstant: 25).isActive = true
         
         self.sendButton.topAnchor.constraint(equalTo: inputSection.topAnchor).isActive = true
         self.sendButton.trailingAnchor.constraint(equalTo: inputSection.trailingAnchor).isActive = true
@@ -55,7 +74,7 @@ class ChatViewController: UIViewController {
         self.sendButton.widthAnchor.constraint(equalToConstant: 70).isActive = true
         
         self.messageTextField.topAnchor.constraint(equalTo: inputSection.topAnchor).isActive = true
-        self.messageTextField.leadingAnchor.constraint(equalTo: inputSection.leadingAnchor, constant: 16).isActive = true
+        self.messageTextField.leadingAnchor.constraint(equalTo: self.clipImageView.trailingAnchor, constant: 16).isActive = true
         self.messageTextField.trailingAnchor.constraint(equalTo: self.sendButton.leadingAnchor).isActive = true
         self.messageTextField.bottomAnchor.constraint(equalTo: inputSection.bottomAnchor).isActive = true
         
@@ -155,7 +174,7 @@ extension ChatViewController{
     }
     
     fileprivate func addTapGesture(){
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(ChatViewController.handleTap))
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(ChatViewController.handleViewTap))
         view.addGestureRecognizer(tapGesture)
     }
     
@@ -194,8 +213,29 @@ extension ChatViewController{
     }
     
     @objc
-    fileprivate func handleTap(){
+    fileprivate func handleViewTap(){
         messageTextField.resignFirstResponder()
+    }
+    
+    @objc
+    fileprivate func clipImageViewTapped(){
+        let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        
+        let sendImageAction = UIAlertAction(title: "Send image", style: .default) { (_) in
+            self.presentPickerController()
+        }
+        
+        let sendVideoAction = UIAlertAction(title: "Send video", style: .default) { (_) in
+            
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        
+        actionSheet.addAction(sendImageAction)
+        actionSheet.addAction(sendVideoAction)
+        actionSheet.addAction(cancelAction)
+        
+        present(actionSheet, animated: true, completion: nil)
     }
     
 }
@@ -244,7 +284,7 @@ extension ChatViewController{
         
         let toId = user.id
         
-        messageService.sendMessage(toId: toId, message: message)
+        messageService.sendMessage(toId: toId, message: message, imageUrl: nil)
         
     }
     
@@ -261,6 +301,22 @@ extension ChatViewController{
         
         if index > 1{
             collectionView.scrollToItem(at: IndexPath(item: index, section: 0), at: .bottom, animated: true)
+        }
+        
+    }
+    
+    fileprivate func presentPickerController(){
+        let imagePickerController = UIImagePickerController()
+        imagePickerController.delegate = self
+        imagePickerController.allowsEditing = true
+        imagePickerController.sourceType = .photoLibrary
+        present(imagePickerController, animated: true, completion: nil)
+    }
+    
+    fileprivate func uploadImageToFirebase(imageToSend: UIImage){
+        
+        if let imageData = UIImageJPEGRepresentation(imageToSend, 0.2){
+            messageService.uploadImageDataToFirebase(imageData, toId: user.id)
         }
         
     }
@@ -286,14 +342,14 @@ extension ChatViewController: UICollectionViewDataSource{
         let message = messages[indexPath.item]
         
         if messageService.isMessageFromCurrentUser(message){
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! ChatCell
-            cell.messageText.text = message.message
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! UserChatCell
             cell.bubbleWidthAnchor.constant = estimatedFrameForText(message.message).width + ConstraintConstants.widthHeightPlusForEstimation
+            cell.message = message
             return cell
         }else{
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "incomingCell", for: indexPath) as! InconmingChatCell
-            cell.messageText.text = message.message
             cell.bubbleWidthAnchor.constant = estimatedFrameForText(message.message).width + ConstraintConstants.widthHeightPlusForEstimation
+            cell.message = message
             return cell
         }
         
@@ -306,11 +362,42 @@ extension ChatViewController: UICollectionViewDataSource{
 extension ChatViewController: UICollectionViewDelegateFlowLayout{
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        
         let screenWidth = UIScreen.main.bounds.width
-        let height = estimatedFrameForText(messages[indexPath.item].message).height + ConstraintConstants.widthHeightPlusForEstimation
         
-        return CGSize(width: screenWidth, height: height)
+        if let _ = messages[indexPath.item].imageUrl{
+            return CGSize(width: screenWidth, height: ChatCell.ImageConstraints.widthAngHeight)
+        }else{
+            let height = estimatedFrameForText(messages[indexPath.item].message).height + ConstraintConstants.widthHeightPlusForEstimation
+            return CGSize(width: screenWidth, height: height)
+        }
+    }
+    
+}
+
+//MARK: UIImagePickerControllerDelegate - UINavigationControllerDelegate
+
+extension ChatViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate{
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true, completion: nil)
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+        
+        var selectedImageForPicker: UIImage?
+        
+        if let editedImage = info[UIImagePickerControllerEditedImage] as? UIImage{
+            selectedImageForPicker = editedImage
+        }else if let originalImage = info[UIImagePickerControllerOriginalImage] as? UIImage{
+            selectedImageForPicker = originalImage
+        }
+        
+        if let selectedImage = selectedImageForPicker{
+            uploadImageToFirebase(imageToSend: selectedImage)
+        }
+        
+        picker.dismiss(animated: true, completion: nil)
+        
     }
     
 }

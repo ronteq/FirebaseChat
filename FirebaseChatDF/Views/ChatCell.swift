@@ -8,13 +8,15 @@
 
 import Foundation
 import UIKit
+import SDWebImage
 
 class ChatCell: UICollectionViewCell{
     
-    fileprivate let bubbleView: UIView = {
+    let bubbleView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.layer.cornerRadius = 10
+        view.clipsToBounds = true
         view.backgroundColor = UIColor.orange
         return view
     }()
@@ -29,7 +31,21 @@ class ChatCell: UICollectionViewCell{
         return tv
     }()
     
+    let messageImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFit
+        imageView.layer.cornerRadius = 20
+        return imageView
+    }()
+    
     var bubbleWidthAnchor: NSLayoutConstraint!
+    
+    var message: Message!{
+        didSet{
+            fillUI()
+        }
+    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -46,29 +62,51 @@ class ChatCell: UICollectionViewCell{
 
 extension ChatCell{
     
-    fileprivate func setupViews(){
+    func setupViews(){
         setupBubbleView()
         setupMessageLabel()
+        setupMessageImageView()
     }
     
-    fileprivate func setupBubbleView(){
-        addSubview(bubbleView)
+    func setupBubbleView(){
         
-        bubbleView.topAnchor.constraint(equalTo: topAnchor).isActive = true
-        bubbleView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8).isActive = true
-        bubbleView.heightAnchor.constraint(equalTo: heightAnchor).isActive = true
-        bubbleWidthAnchor = bubbleView.widthAnchor.constraint(equalToConstant: frame.width / 2)
-        
-        bubbleWidthAnchor.isActive = true
     }
     
-    fileprivate func setupMessageLabel(){
+    func setupMessageLabel(){
         bubbleView.addSubview(messageText)
         
         messageText.topAnchor.constraint(equalTo: bubbleView.topAnchor).isActive = true
         messageText.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 8).isActive = true
         messageText.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor).isActive = true
         messageText.heightAnchor.constraint(equalTo: bubbleView.heightAnchor).isActive = true
+    }
+    
+    func setupMessageImageView(){
+        bubbleView.addSubview(messageImageView)
+        
+        messageImageView.topAnchor.constraint(equalTo: bubbleView.topAnchor).isActive = true
+        messageImageView.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor).isActive = true
+        messageImageView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor).isActive = true
+        messageImageView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor).isActive = true
+    }
+    
+    fileprivate func fillUI(){
+        if let imageUrl = message.imageUrl{
+            bubbleWidthAnchor.constant = ImageConstraints.widthAngHeight
+            messageImageView.sd_setImage(with: URL(string: imageUrl), completed: nil)
+        }else{
+            messageText.text = message.message
+        }
+    }
+    
+}
+
+//MARK: Constants
+
+extension ChatCell{
+    
+    struct ImageConstraints{
+        static let widthAngHeight: CGFloat = 200
     }
     
 }

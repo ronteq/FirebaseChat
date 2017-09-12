@@ -13,14 +13,18 @@ class Message{
     var messageId: String = ""
     var toId: String
     var fromId: String
-    var message: String
+    var message: String = ""
     var timestamp: Double
     
-    init(messageId: String, toId: String, fromId: String, message: String, timestamp: Double?) {
+    var imageUrl: String?
+    
+    //Fetching messages
+    init(messageId: String, toId: String, fromId: String, message: String, timestamp: Double?, imageUrl: String?) {
         self.messageId = messageId
         self.toId = toId
         self.fromId = fromId
         self.message = message
+        self.imageUrl = imageUrl
         
         if let timestamp = timestamp{
             self.timestamp = timestamp
@@ -29,6 +33,7 @@ class Message{
         }
     }
     
+    //Sending a text
     init(toId: String, fromId: String, message: String, timestamp: Double?) {
         self.toId = toId
         self.fromId = fromId
@@ -47,8 +52,14 @@ class Message{
             let message = dictionary[JSONKeys.message] as? String,
             let timestamp = dictionary[JSONKeys.timestamp] as? Double else { return nil }
         
+        var imageUrl: String?
+        
+        if let url = dictionary[JSONKeys.imageUrl] as? String{
+            imageUrl = url
+        }
+        
         if let messageId = dictionary[JSONKeys.messageId] as? String{
-            self.init(messageId: messageId, toId: toId, fromId: fromId, message: message, timestamp: timestamp)
+            self.init(messageId: messageId, toId: toId, fromId: fromId, message: message, timestamp: timestamp, imageUrl: imageUrl)
         }else{
             self.init(toId: toId, fromId: fromId, message: message, timestamp: timestamp)
         }
@@ -56,12 +67,16 @@ class Message{
     }
     
     func convertToDictionary()-> [String: Any]{
-        let messageInfo: [String: Any] = [
+        var messageInfo: [String: Any] = [
             JSONKeys.toId: toId,
             JSONKeys.fromId: fromId,
             JSONKeys.message: message,
             JSONKeys.timestamp: timestamp
         ]
+        
+        if let imageUrl = imageUrl{
+            messageInfo[JSONKeys.imageUrl] = imageUrl
+        }
         
         return messageInfo
     }
@@ -82,6 +97,7 @@ extension Message{
         static let toId = "toId"
         static let fromId = "fromId"
         static let message = "message"
+        static let imageUrl = "imageUrl"
         static let timestamp = "timestamp"
     }
     

@@ -9,6 +9,7 @@
 import Foundation
 import FirebaseAuth
 import FirebaseDatabase
+import FirebaseStorage
 
 struct MessageService{
     
@@ -29,20 +30,26 @@ struct MessageService{
 
 extension MessageService{
     
-    func sendMessage(toId: String, message: String){
+    func sendMessage(toId: String, message: String, imageUrl: String?){
         
         guard let fromId = Auth.auth().currentUser?.uid else { return }
         
         let messagesRef = databaseRef.child(FirebasePaths.messages).childByAutoId()
         
-        let myMessage = Message(toId: toId, fromId: fromId, message: message, timestamp: nil)
-        let messageInfo = myMessage.convertToDictionary()
+        let newMessage = Message(toId: toId, fromId: fromId, message: message, timestamp: nil)
+        
+        if let imageUrl = imageUrl{
+            newMessage.imageUrl = imageUrl
+        }
+        
+        let messageInfo = newMessage.convertToDictionary()
         
         messagesRef.setValue(messageInfo) { (error, reference) in
             self.createUserMessageAssociation(messageKey: reference.key, userIdOne: fromId, userIdTwo: toId)
             self.createUserMessageAssociation(messageKey: reference.key, userIdOne: toId, userIdTwo: fromId)
-            self.createLastMessageForUser(fromId: fromId, toId: toId, message: message, timestamp: myMessage.timestamp)
-            self.createLastMessageForUser(fromId: toId, toId: fromId, message: message, timestamp: myMessage.timestamp)
+            self.createLastMessageForUser(fromId: fromId, toId: toId, message: message, timestamp: newMessage.timestamp)
+            self.createLastMessageForUser(fromId: toId, toId: fromId, message: message, timestamp: newMessage.timestamp)
+            
         }
     }
     
@@ -69,6 +76,33 @@ extension MessageService{
         ]
         
         lastUserMessageRef.updateChildValues(dataToSend)
+        
+    }
+    
+}
+
+//MARK: Sending images
+
+extension MessageService{
+    
+    func uploadImageDataToFirebase(_ imageData: Data, toId: String){
+        let imageId = NSUUID().uuidString
+        let storageReference = Storage.storage().reference()
+        let messageImagesReference = storageReference.child(FirebasePaths.messageImages).child(imageId)
+        
+        messageImagesReference.putData(imageData, metadata: nil) { (metadata, error) in
+            
+            if let error = error{
+                print("Error while uploading image: \(error.localizedDescription)")
+            }else{
+                
+                guard let imageUrl = metadata?.downloadURL()?.absoluteString else { return }
+                
+                self.sendMessage(toId: toId, message: "image", imageUrl: imageUrl)
+                
+            }
+            
+        }
         
     }
     

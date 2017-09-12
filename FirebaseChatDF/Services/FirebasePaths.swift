@@ -13,4 +13,5 @@ struct FirebasePaths{
     static let userMessages = "userMessages"
     static let lastUserMessage = "lastUserMessage"
     static let messages = "messages"
+    static let messageImages = "messageImages"
 }
