@@ -92,9 +92,11 @@ extension ChatCell{
     
     fileprivate func fillUI(){
         if let imageUrl = message.imageUrl{
+            messageImageView.isHidden = false
             bubbleWidthAnchor.constant = ImageConstraints.widthAngHeight
             messageImageView.sd_setImage(with: URL(string: imageUrl), completed: nil)
         }else{
+            messageImageView.isHidden = true
             messageText.text = message.message
         }
     }
