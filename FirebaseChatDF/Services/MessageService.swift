@@ -30,7 +30,7 @@ struct MessageService{
 
 extension MessageService{
     
-    func sendMessage(toId: String, message: String, imageUrl: String?){
+    func sendMessage(toId: String, message: String, imageUrl: String?, imageWidth: Double?, imageHeight: Double?){
         
         guard let fromId = Auth.auth().currentUser?.uid else { return }
         
@@ -38,9 +38,9 @@ extension MessageService{
         
         let newMessage = Message(toId: toId, fromId: fromId, message: message, timestamp: nil)
         
-        if let imageUrl = imageUrl{
-            newMessage.imageUrl = imageUrl
-        }
+        newMessage.imageUrl = imageUrl
+        newMessage.imageWidth = imageWidth
+        newMessage.imageHeight = imageHeight
         
         let messageInfo = newMessage.convertToDictionary()
         
@@ -85,7 +85,7 @@ extension MessageService{
 
 extension MessageService{
     
-    func uploadImageDataToFirebase(_ imageData: Data, toId: String){
+    func uploadImageDataToFirebase(_ imageData: Data, imageWidth: Double, imageHeight: Double, toId: String){
         let imageId = NSUUID().uuidString
         let storageReference = Storage.storage().reference()
         let messageImagesReference = storageReference.child(FirebasePaths.messageImages).child(imageId)
@@ -98,7 +98,7 @@ extension MessageService{
                 
                 guard let imageUrl = metadata?.downloadURL()?.absoluteString else { return }
                 
-                self.sendMessage(toId: toId, message: "image", imageUrl: imageUrl)
+                self.sendMessage(toId: toId, message: "image", imageUrl: imageUrl, imageWidth: imageWidth, imageHeight: imageHeight)
                 
             }
             

@@ -17,14 +17,18 @@ class Message{
     var timestamp: Double
     
     var imageUrl: String?
+    var imageWidth: Double?
+    var imageHeight: Double?
     
     //Fetching messages
-    init(messageId: String, toId: String, fromId: String, message: String, timestamp: Double?, imageUrl: String?) {
+    init(messageId: String, toId: String, fromId: String, message: String, timestamp: Double?, imageUrl: String?, imageWidth: Double?, imageHeight: Double?) {
         self.messageId = messageId
         self.toId = toId
         self.fromId = fromId
         self.message = message
         self.imageUrl = imageUrl
+        self.imageWidth = imageWidth
+        self.imageHeight = imageHeight
         
         if let timestamp = timestamp{
             self.timestamp = timestamp
@@ -53,13 +57,21 @@ class Message{
             let timestamp = dictionary[JSONKeys.timestamp] as? Double else { return nil }
         
         var imageUrl: String?
+        var imageWidth: Double?
+        var imageHeight: Double?
         
-        if let url = dictionary[JSONKeys.imageUrl] as? String{
+        if let url = dictionary[JSONKeys.imageUrl] as? String,
+            let width = dictionary[JSONKeys.imageWidth] as? Double,
+            let height = dictionary[JSONKeys.imageHeight] as? Double{
+            
             imageUrl = url
+            imageWidth = width
+            imageHeight = height
+            
         }
         
         if let messageId = dictionary[JSONKeys.messageId] as? String{
-            self.init(messageId: messageId, toId: toId, fromId: fromId, message: message, timestamp: timestamp, imageUrl: imageUrl)
+            self.init(messageId: messageId, toId: toId, fromId: fromId, message: message, timestamp: timestamp, imageUrl: imageUrl, imageWidth: imageWidth, imageHeight: imageHeight)
         }else{
             self.init(toId: toId, fromId: fromId, message: message, timestamp: timestamp)
         }
@@ -74,8 +86,12 @@ class Message{
             JSONKeys.timestamp: timestamp
         ]
         
-        if let imageUrl = imageUrl{
+        if let imageUrl = imageUrl,
+            let imageWidth = imageWidth,
+            let imageHeight = imageHeight{
             messageInfo[JSONKeys.imageUrl] = imageUrl
+            messageInfo[JSONKeys.imageWidth] = imageWidth
+            messageInfo[JSONKeys.imageHeight] = imageHeight
         }
         
         return messageInfo
@@ -98,6 +114,8 @@ extension Message{
         static let fromId = "fromId"
         static let message = "message"
         static let imageUrl = "imageUrl"
+        static let imageWidth = "imageWidth"
+        static let imageHeight = "imageHeight"
         static let timestamp = "timestamp"
     }
     

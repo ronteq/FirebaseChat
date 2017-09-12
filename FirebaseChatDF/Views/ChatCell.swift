@@ -15,7 +15,7 @@ class ChatCell: UICollectionViewCell{
     let bubbleView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.layer.cornerRadius = 10
+        view.layer.cornerRadius = ImageConstraints.cornerRadius
         view.clipsToBounds = true
         view.backgroundColor = UIColor.orange
         return view
@@ -35,7 +35,8 @@ class ChatCell: UICollectionViewCell{
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFit
-        imageView.layer.cornerRadius = 20
+        imageView.layer.cornerRadius = ImageConstraints.cornerRadius
+        imageView.backgroundColor = UIColor.white
         return imageView
     }()
     
@@ -93,7 +94,7 @@ extension ChatCell{
     fileprivate func fillUI(){
         if let imageUrl = message.imageUrl{
             messageImageView.isHidden = false
-            bubbleWidthAnchor.constant = ImageConstraints.widthAngHeight
+            bubbleWidthAnchor.constant = ImageConstraints.width
             messageImageView.sd_setImage(with: URL(string: imageUrl), completed: nil)
         }else{
             messageImageView.isHidden = true
@@ -108,7 +109,8 @@ extension ChatCell{
 extension ChatCell{
     
     struct ImageConstraints{
-        static let widthAngHeight: CGFloat = 200
+        static let width: CGFloat = 200
+        static let cornerRadius: CGFloat = 10
     }
     
 }

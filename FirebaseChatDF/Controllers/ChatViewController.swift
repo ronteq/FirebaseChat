@@ -284,7 +284,7 @@ extension ChatViewController{
         
         let toId = user.id
         
-        messageService.sendMessage(toId: toId, message: message, imageUrl: nil)
+        messageService.sendMessage(toId: toId, message: message, imageUrl: nil, imageWidth: nil, imageHeight: nil)
         
     }
     
@@ -316,7 +316,11 @@ extension ChatViewController{
     fileprivate func uploadImageToFirebase(imageToSend: UIImage){
         
         if let imageData = UIImageJPEGRepresentation(imageToSend, 0.2){
-            messageService.uploadImageDataToFirebase(imageData, toId: user.id)
+            
+            let width = imageToSend.size.width
+            let height = imageToSend.size.height
+            
+            messageService.uploadImageDataToFirebase(imageData, imageWidth: Double(width), imageHeight: Double(height), toId: user.id)
         }
         
     }
@@ -364,8 +368,12 @@ extension ChatViewController: UICollectionViewDelegateFlowLayout{
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let screenWidth = UIScreen.main.bounds.width
         
-        if let _ = messages[indexPath.item].imageUrl{
-            return CGSize(width: screenWidth, height: ChatCell.ImageConstraints.widthAngHeight)
+        if let imageHeight = messages[indexPath.item].imageHeight,
+            let imageWidth = messages[indexPath.item].imageWidth{
+            
+            let height = CGFloat(imageHeight / imageWidth) * ChatCell.ImageConstraints.width
+            
+            return CGSize(width: screenWidth, height: height)
         }else{
             let height = estimatedFrameForText(messages[indexPath.item].message).height + ConstraintConstants.widthHeightPlusForEstimation
             return CGSize(width: screenWidth, height: height)
