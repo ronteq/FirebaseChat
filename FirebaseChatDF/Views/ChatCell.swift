@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import SDWebImage
+import AVFoundation
 
 protocol ChatCellDelegate: class{
     
@@ -25,6 +26,22 @@ class ChatCell: UICollectionViewCell{
         view.clipsToBounds = true
         view.backgroundColor = UIColor.orange
         return view
+    }()
+    
+    let activityIndicatorView: UIActivityIndicatorView = {
+        let aiv = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
+        aiv.translatesAutoresizingMaskIntoConstraints = false
+        aiv.hidesWhenStopped = true
+        return aiv
+    }()
+    
+    lazy var playButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.tintColor = UIColor.white
+        button.addTarget(self, action: #selector(playButtonTapped), for: .touchUpInside)
+        button.setImage(#imageLiteral(resourceName: "play"), for: .normal)
+        return button
     }()
     
     let messageText: UITextView = {
@@ -48,6 +65,8 @@ class ChatCell: UICollectionViewCell{
     }()
     
     var bubbleWidthAnchor: NSLayoutConstraint!
+    var player: AVPlayer?
+    var playerLayer : AVPlayerLayer?
     
     weak var delegate: ChatCellDelegate?
     
@@ -68,6 +87,15 @@ class ChatCell: UICollectionViewCell{
         
     }
     
+    //se llama cada vez que la celda esta por reusarse
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        playerLayer?.removeFromSuperlayer()
+        player?.pause()
+        activityIndicatorView.stopAnimating()
+    }
+    
 }
 
 extension ChatCell{
@@ -77,6 +105,8 @@ extension ChatCell{
         setupMessageLabel()
         setupMessageImageView()
         addTapGestureToImageView()
+        setupPlayButton()
+        setupActivityIndicatorView()
     }
     
     func setupBubbleView(){
@@ -106,19 +136,40 @@ extension ChatCell{
         messageImageView.addGestureRecognizer(tapGesture)
     }
     
+    fileprivate func setupPlayButton(){
+        bubbleView.addSubview(playButton)
+        
+        playButton.topAnchor.constraint(equalTo: bubbleView.topAnchor).isActive = true
+        playButton.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor).isActive = true
+        playButton.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor).isActive = true
+        playButton.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor).isActive = true
+    }
+    
+    fileprivate func setupActivityIndicatorView(){
+        bubbleView.addSubview(activityIndicatorView)
+        
+        activityIndicatorView.centerXAnchor.constraint(equalTo: bubbleView.centerXAnchor).isActive = true
+        activityIndicatorView.centerYAnchor.constraint(equalTo: bubbleView.centerYAnchor).isActive = true
+        activityIndicatorView.widthAnchor.constraint(equalToConstant: 50).isActive = true
+        activityIndicatorView.heightAnchor.constraint(equalToConstant: 50).isActive = true
+    }
+    
     fileprivate func fillUI(){
         
-        if let videoUrl = message.videoUrl, let imageUrl = message.imageUrl{
+        if let _ = message.videoUrl, let imageUrl = message.imageUrl{
             messageImageView.isHidden = false
+            playButton.isHidden = false
             bubbleWidthAnchor.constant = ImageConstraints.width
             messageImageView.sd_setImage(with: URL(string: imageUrl), completed: nil)
             
         }else if let imageUrl = message.imageUrl{
             messageImageView.isHidden = false
+            playButton.isHidden = true
             bubbleWidthAnchor.constant = ImageConstraints.width
             messageImageView.sd_setImage(with: URL(string: imageUrl), completed: nil)
         }else{
             messageImageView.isHidden = true
+            playButton.isHidden = true
             messageText.text = message.message
         }
     }
@@ -132,6 +183,19 @@ extension ChatCell{
     @objc
     fileprivate func messageImageViewTapped(){
         delegate?.chatCellDidTapMessageImageView(self)
+    }
+    
+    @objc
+    fileprivate func playButtonTapped(){
+        if let videoUrl = message.videoUrl, let url = URL(string: videoUrl){
+            player = AVPlayer(url: url)
+            playerLayer = AVPlayerLayer(player: player!)
+            playerLayer?.frame = bubbleView.bounds
+            bubbleView.layer.addSublayer(playerLayer!)
+            player?.play()
+            playButton.isHidden = true
+            activityIndicatorView.startAnimating()
+        }
     }
     
 }
