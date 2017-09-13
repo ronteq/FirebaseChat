@@ -110,6 +110,9 @@ class ChatViewController: UIViewController {
     
     let messageService = MessageService()
     
+    var startingFrameForZoomImageView: CGRect!
+    var blackBackgroundView: UIView!
+    
     deinit {
         print("ChatViewController deleted")
         messageService.removeObservers()
@@ -238,6 +241,51 @@ extension ChatViewController{
         present(actionSheet, animated: true, completion: nil)
     }
     
+    @objc
+    fileprivate func zoomingImageViewIsPanning(_ panGesture: UIPanGestureRecognizer){
+        
+        guard let zoomingImageView = panGesture.view else { return }
+        
+        if panGesture.state == .changed{
+            
+            let translation = panGesture.translation(in: self.view)
+            
+            zoomingImageView.center = CGPoint(x: zoomingImageView.center.x + translation.x, y: zoomingImageView.center.y + translation.y)
+            panGesture.setTranslation(CGPoint.zero, in: self.view)
+            
+            
+        }else if panGesture.state == .ended{
+            
+            let velocity = panGesture.velocity(in: self.view)
+            
+            if velocity.x > 150 || velocity.y > 150{
+                
+                UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseOut, animations: { 
+                    
+                    zoomingImageView.frame = self.startingFrameForZoomImageView
+                    self.blackBackgroundView.alpha = 0.0
+                    self.inputSection.alpha = 1.0
+                    
+                }, completion: { (_) in
+                    
+                    zoomingImageView.removeFromSuperview()
+                    self.blackBackgroundView.removeFromSuperview()
+                    
+                })
+                
+                
+            }else{
+                guard let keyWindow = UIApplication.shared.keyWindow else { return }
+                
+                UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseOut, animations: {
+                    zoomingImageView.center = keyWindow.center
+                }, completion: nil)
+            }
+            
+        }
+        
+    }
+    
 }
 
 //MARK: Private methods
@@ -325,6 +373,62 @@ extension ChatViewController{
         
     }
     
+    fileprivate func animateZoomInForMessageImageView(for chatCell: ChatCell){
+        setupBlackBackgroundiew()
+        
+        if let zoomingImageView = setupZoomingImageView(for: chatCell){
+            animateZoomIn(zoomingImageView)
+        }
+    }
+    
+    fileprivate func setupBlackBackgroundiew(){
+        
+        guard let keyWindow = UIApplication.shared.keyWindow else { return }
+        
+        blackBackgroundView = UIView(frame: keyWindow.frame)
+        blackBackgroundView.backgroundColor = UIColor.black
+        blackBackgroundView.alpha = 0.0
+        
+        keyWindow.addSubview(blackBackgroundView)
+        
+    }
+    
+    fileprivate func setupZoomingImageView(for chatCell: ChatCell)-> UIImageView?{
+        
+        guard let keyWindow = UIApplication.shared.keyWindow else { return nil }
+        
+        startingFrameForZoomImageView = chatCell.messageImageView.superview?.convert(chatCell.messageImageView.frame, to: nil)
+        
+        let zoomingImageView = UIImageView(frame: startingFrameForZoomImageView)
+        zoomingImageView.isUserInteractionEnabled = true
+        zoomingImageView.image = chatCell.messageImageView.image
+        
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(ChatViewController.zoomingImageViewIsPanning))
+        zoomingImageView.addGestureRecognizer(panGesture)
+        
+        keyWindow.addSubview(zoomingImageView)
+        
+        return zoomingImageView
+    }
+    
+    fileprivate func animateZoomIn(_ zoomingImageView: UIImageView){
+        
+        guard let keyWindow = UIApplication.shared.keyWindow else { return }
+        
+        UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseOut, animations: {
+            
+            self.blackBackgroundView.alpha = 1.0
+            self.inputSection.alpha = 0.0
+            
+            let height = self.startingFrameForZoomImageView!.height / self.startingFrameForZoomImageView!.width * keyWindow.frame.width
+            
+            zoomingImageView.frame = CGRect(x: 0, y: 0, width: keyWindow.frame.width, height: height)
+            zoomingImageView.center = keyWindow.center
+            
+        }, completion: nil)
+        
+    }
+    
 }
 
 //MARK: UICollectionViewDelegate
@@ -347,11 +451,13 @@ extension ChatViewController: UICollectionViewDataSource{
         
         if messageService.isMessageFromCurrentUser(message){
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! UserChatCell
+            cell.delegate = self
             cell.bubbleWidthAnchor.constant = estimatedFrameForText(message.message).width + ConstraintConstants.widthHeightPlusForEstimation
             cell.message = message
             return cell
         }else{
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "incomingCell", for: indexPath) as! InconmingChatCell
+            cell.delegate = self
             cell.bubbleWidthAnchor.constant = estimatedFrameForText(message.message).width + ConstraintConstants.widthHeightPlusForEstimation
             cell.message = message
             return cell
@@ -405,6 +511,18 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
         }
         
         picker.dismiss(animated: true, completion: nil)
+        
+    }
+    
+}
+
+//MARK: ChatCellDelegate
+
+extension ChatViewController: ChatCellDelegate{
+    
+    func chatCellDidTapMessageImageView(_ chatCell: ChatCell) {
+        
+        animateZoomInForMessageImageView(for: chatCell)
         
     }
     

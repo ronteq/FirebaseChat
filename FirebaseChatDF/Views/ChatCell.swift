@@ -10,6 +10,12 @@ import Foundation
 import UIKit
 import SDWebImage
 
+protocol ChatCellDelegate: class{
+    
+    func chatCellDidTapMessageImageView(_ chatCell: ChatCell)
+    
+}
+
 class ChatCell: UICollectionViewCell{
     
     let bubbleView: UIView = {
@@ -37,10 +43,13 @@ class ChatCell: UICollectionViewCell{
         imageView.contentMode = .scaleAspectFit
         imageView.layer.cornerRadius = ImageConstraints.cornerRadius
         imageView.backgroundColor = UIColor.white
+        imageView.isUserInteractionEnabled = true
         return imageView
     }()
     
     var bubbleWidthAnchor: NSLayoutConstraint!
+    
+    weak var delegate: ChatCellDelegate?
     
     var message: Message!{
         didSet{
@@ -67,6 +76,7 @@ extension ChatCell{
         setupBubbleView()
         setupMessageLabel()
         setupMessageImageView()
+        addTapGestureToImageView()
     }
     
     func setupBubbleView(){
@@ -91,6 +101,11 @@ extension ChatCell{
         messageImageView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor).isActive = true
     }
     
+    fileprivate func addTapGestureToImageView(){
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(ChatCell.messageImageViewTapped))
+        messageImageView.addGestureRecognizer(tapGesture)
+    }
+    
     fileprivate func fillUI(){
         if let imageUrl = message.imageUrl{
             messageImageView.isHidden = false
@@ -100,6 +115,17 @@ extension ChatCell{
             messageImageView.isHidden = true
             messageText.text = message.message
         }
+    }
+    
+}
+
+//MARK: Handling methods
+
+extension ChatCell{
+    
+    @objc
+    fileprivate func messageImageViewTapped(){
+        delegate?.chatCellDidTapMessageImageView(self)
     }
     
 }
