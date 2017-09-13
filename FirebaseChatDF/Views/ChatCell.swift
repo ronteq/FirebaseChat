@@ -161,6 +161,7 @@ extension ChatCell{
             playButton.isHidden = false
             bubbleWidthAnchor.constant = ImageConstraints.width
             messageImageView.sd_setImage(with: URL(string: imageUrl), completed: nil)
+            messageImageView.isUserInteractionEnabled = false
             
         }else if let imageUrl = message.imageUrl{
             messageImageView.isHidden = false
