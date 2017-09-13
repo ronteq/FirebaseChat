@@ -82,6 +82,49 @@ extension MessageService{
     
 }
 
+//MARK: Deleting
+
+extension MessageService{
+    
+    func deleteMessage(_ message: Message){
+        
+        guard let fromId = Auth.auth().currentUser?.uid else { return }
+        
+        let toId = message.toId
+        let dispatchGroup = DispatchGroup()
+        
+        let userMessagesRef = databaseRef.child(FirebasePaths.userMessages).child(fromId).child(toId)
+        let lastUserMessageRef = databaseRef.child(FirebasePaths.lastUserMessage).child(fromId).child(toId)
+        
+        userMessagesRef.observeSingleEvent(of: .value, with: {(snapshot) in
+            
+            for child in snapshot.children{
+                
+                dispatchGroup.enter()
+                
+                guard let snap = child as? DataSnapshot else { return }
+                
+                let messagesRef = self.databaseRef.child(FirebasePaths.messages).child(snap.key)
+                messagesRef.removeValue(completionBlock: { (error, reference) in
+                    
+                    dispatchGroup.leave()
+                    
+                })
+                
+            }
+            
+            dispatchGroup.notify(queue: .main, execute: { 
+                userMessagesRef.removeValue()
+            })
+            
+        })
+        
+        lastUserMessageRef.removeValue()
+        
+    }
+    
+}
+
 //MARK: Sending MEDIA
 
 extension MessageService{

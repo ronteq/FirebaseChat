@@ -122,6 +122,12 @@ extension HomeViewController{
         }
     }
     
+    fileprivate func deleteMessage(_ message: Message){
+        
+        messageService.deleteMessage(message)
+        
+    }
+    
 }
 
 //MARK: UITableViewDelegate
@@ -137,6 +143,16 @@ extension HomeViewController: UITableViewDelegate{
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 70
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete{
+            
+            deleteMessage(messages[indexPath.row])
+            messages.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+            
+        }
     }
     
 }
