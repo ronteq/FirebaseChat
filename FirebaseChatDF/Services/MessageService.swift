@@ -30,7 +30,7 @@ struct MessageService{
 
 extension MessageService{
     
-    func sendMessage(toId: String, message: String, imageUrl: String?, imageWidth: Double?, imageHeight: Double?){
+    func sendMessage(toId: String, message: String, imageUrl: String?, mediaWidth: Double?, mediaHeight: Double?, videoUrl: String?){
         
         guard let fromId = Auth.auth().currentUser?.uid else { return }
         
@@ -39,8 +39,9 @@ extension MessageService{
         let newMessage = Message(toId: toId, fromId: fromId, message: message, timestamp: nil)
         
         newMessage.imageUrl = imageUrl
-        newMessage.imageWidth = imageWidth
-        newMessage.imageHeight = imageHeight
+        newMessage.videoUrl = videoUrl
+        newMessage.mediaWidth = mediaWidth
+        newMessage.mediaHeight = mediaHeight
         
         let messageInfo = newMessage.convertToDictionary()
         
@@ -81,12 +82,12 @@ extension MessageService{
     
 }
 
-//MARK: Sending images
+//MARK: Sending MEDIA
 
 extension MessageService{
     
-    func uploadImageDataToFirebase(_ imageData: Data, imageWidth: Double, imageHeight: Double, toId: String){
-        let imageId = NSUUID().uuidString
+    func uploadImageDataToFirebase(_ imageData: Data, completion: @escaping(_ imageUrl: String)-> Void){
+        let imageId = NSUUID().uuidString + ".mov"
         let storageReference = Storage.storage().reference()
         let messageImagesReference = storageReference.child(FirebasePaths.messageImages).child(imageId)
         
@@ -98,7 +99,29 @@ extension MessageService{
                 
                 guard let imageUrl = metadata?.downloadURL()?.absoluteString else { return }
                 
-                self.sendMessage(toId: toId, message: "image", imageUrl: imageUrl, imageWidth: imageWidth, imageHeight: imageHeight)
+                completion(imageUrl)
+                
+            }
+            
+        }
+        
+    }
+    
+    func uploadVideoUrlToFirebase(_ videoUrl: URL, completion: @escaping(_ videoUrl: String)-> Void){
+        
+        let videoId = NSUUID().uuidString
+        let storageRef = Storage.storage().reference()
+        let videoUrlRef = storageRef.child(FirebasePaths.messageVideos).child(videoId)
+        
+        videoUrlRef.putFile(from: videoUrl, metadata: nil) { (metadata, error) in
+            
+            if let error = error{
+                print("Error while uploading video: \(error.localizedDescription)")
+            }else{
+                
+                guard let stringVideoUrl = metadata?.downloadURL()?.absoluteString else { return }
+                
+                completion(stringVideoUrl)
                 
             }
             

@@ -107,7 +107,13 @@ extension ChatCell{
     }
     
     fileprivate func fillUI(){
-        if let imageUrl = message.imageUrl{
+        
+        if let videoUrl = message.videoUrl, let imageUrl = message.imageUrl{
+            messageImageView.isHidden = false
+            bubbleWidthAnchor.constant = ImageConstraints.width
+            messageImageView.sd_setImage(with: URL(string: imageUrl), completed: nil)
+            
+        }else if let imageUrl = message.imageUrl{
             messageImageView.isHidden = false
             bubbleWidthAnchor.constant = ImageConstraints.width
             messageImageView.sd_setImage(with: URL(string: imageUrl), completed: nil)

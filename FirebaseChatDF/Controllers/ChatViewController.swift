@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import MobileCoreServices
+import AVFoundation
 
 class ChatViewController: UIViewController {
     
@@ -222,14 +224,15 @@ extension ChatViewController{
     
     @objc
     fileprivate func clipImageViewTapped(){
+        
         let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
         let sendImageAction = UIAlertAction(title: "Send image", style: .default) { (_) in
-            self.presentPickerController()
+            self.presentPickerForImages()
         }
         
         let sendVideoAction = UIAlertAction(title: "Send video", style: .default) { (_) in
-            
+            self.presentPickerForVideos()
         }
         
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
@@ -332,7 +335,7 @@ extension ChatViewController{
         
         let toId = user.id
         
-        messageService.sendMessage(toId: toId, message: message, imageUrl: nil, imageWidth: nil, imageHeight: nil)
+        messageService.sendMessage(toId: toId, message: message, imageUrl: nil, mediaWidth: nil, mediaHeight: nil, videoUrl: nil)
         
     }
     
@@ -353,11 +356,21 @@ extension ChatViewController{
         
     }
     
-    fileprivate func presentPickerController(){
+    fileprivate func presentPickerForImages(){
         let imagePickerController = UIImagePickerController()
         imagePickerController.delegate = self
         imagePickerController.allowsEditing = true
         imagePickerController.sourceType = .photoLibrary
+        imagePickerController.mediaTypes = [kUTTypeImage as String]
+        present(imagePickerController, animated: true, completion: nil)
+    }
+    
+    fileprivate func presentPickerForVideos(){
+        let imagePickerController = UIImagePickerController()
+        imagePickerController.delegate = self
+        imagePickerController.allowsEditing = true
+        imagePickerController.sourceType = .photoLibrary
+        imagePickerController.mediaTypes = [kUTTypeMovie as String]
         present(imagePickerController, animated: true, completion: nil)
     }
     
@@ -365,11 +378,53 @@ extension ChatViewController{
         
         if let imageData = UIImageJPEGRepresentation(imageToSend, 0.2){
             
-            let width = imageToSend.size.width
-            let height = imageToSend.size.height
+            let width = Double(imageToSend.size.width)
+            let height = Double(imageToSend.size.height)
             
-            messageService.uploadImageDataToFirebase(imageData, imageWidth: Double(width), imageHeight: Double(height), toId: user.id)
+            messageService.uploadImageDataToFirebase(imageData, completion: { (imageUrl) in
+                self.messageService.sendMessage(toId: self.user.id, message: "image", imageUrl: imageUrl, mediaWidth: width, mediaHeight: height, videoUrl: nil)
+            })
         }
+        
+    }
+    
+    fileprivate func uploadVideoToFirebase(videoUrlToSend videoUrl: URL){
+        
+        if let thumbnailImageForUrl = thumbnailImageForUrl(fileUrl: videoUrl), let thumnailImage = UIImageJPEGRepresentation(thumbnailImageForUrl, 0.2){
+            
+            let width = Double(thumbnailImageForUrl.size.width)
+            let height = Double(thumbnailImageForUrl.size.height)
+            
+            messageService.uploadVideoUrlToFirebase(videoUrl, completion: { (videoUrl) in
+                
+                self.messageService.uploadImageDataToFirebase(thumnailImage, completion: { (imageUrl) in
+                    
+                    self.messageService.sendMessage(toId: self.user.id, message: "video", imageUrl: imageUrl, mediaWidth: width, mediaHeight: height, videoUrl: videoUrl)
+                    
+                })
+                
+            })
+            
+        }
+        
+    }
+    
+    fileprivate func thumbnailImageForUrl(fileUrl: URL)-> UIImage?{
+        
+        let asset = AVAsset(url: fileUrl)
+        let imageGenerator = AVAssetImageGenerator(asset: asset)
+        
+        do{
+            
+            let thumnailCGImage = try imageGenerator.copyCGImage(at: CMTime(value: 1, timescale: 60), actualTime: nil)
+            
+            return UIImage(cgImage: thumnailCGImage)
+            
+        }catch{
+            print(error.localizedDescription)
+        }
+        
+        return nil
         
     }
     
@@ -474,8 +529,8 @@ extension ChatViewController: UICollectionViewDelegateFlowLayout{
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let screenWidth = UIScreen.main.bounds.width
         
-        if let imageHeight = messages[indexPath.item].imageHeight,
-            let imageWidth = messages[indexPath.item].imageWidth{
+        if let imageHeight = messages[indexPath.item].mediaHeight,
+            let imageWidth = messages[indexPath.item].mediaWidth{
             
             let height = CGFloat(imageHeight / imageWidth) * ChatCell.ImageConstraints.width
             
@@ -498,16 +553,24 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         
-        var selectedImageForPicker: UIImage?
-        
-        if let editedImage = info[UIImagePickerControllerEditedImage] as? UIImage{
-            selectedImageForPicker = editedImage
-        }else if let originalImage = info[UIImagePickerControllerOriginalImage] as? UIImage{
-            selectedImageForPicker = originalImage
-        }
-        
-        if let selectedImage = selectedImageForPicker{
-            uploadImageToFirebase(imageToSend: selectedImage)
+        if let videoUrl = info[UIImagePickerControllerMediaURL] as? URL{
+            
+            uploadVideoToFirebase(videoUrlToSend: videoUrl)
+            
+        }else{
+            
+            var selectedImageForPicker: UIImage?
+            
+            if let editedImage = info[UIImagePickerControllerEditedImage] as? UIImage{
+                selectedImageForPicker = editedImage
+            }else if let originalImage = info[UIImagePickerControllerOriginalImage] as? UIImage{
+                selectedImageForPicker = originalImage
+            }
+            
+            if let selectedImage = selectedImageForPicker{
+                uploadImageToFirebase(imageToSend: selectedImage)
+            }
+            
         }
         
         picker.dismiss(animated: true, completion: nil)

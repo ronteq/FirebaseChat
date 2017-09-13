@@ -17,18 +17,21 @@ class Message{
     var timestamp: Double
     
     var imageUrl: String?
-    var imageWidth: Double?
-    var imageHeight: Double?
+    var videoUrl: String?
+    var mediaWidth: Double?
+    var mediaHeight: Double?
     
     //Fetching messages
-    init(messageId: String, toId: String, fromId: String, message: String, timestamp: Double?, imageUrl: String?, imageWidth: Double?, imageHeight: Double?) {
+    init(messageId: String, toId: String, fromId: String, message: String, timestamp: Double?, imageUrl: String?, videoUrl: String?, mediaWidth: Double?, mediaHeight: Double?) {
         self.messageId = messageId
         self.toId = toId
         self.fromId = fromId
         self.message = message
+        
         self.imageUrl = imageUrl
-        self.imageWidth = imageWidth
-        self.imageHeight = imageHeight
+        self.videoUrl = videoUrl
+        self.mediaWidth = mediaWidth
+        self.mediaHeight = mediaHeight
         
         if let timestamp = timestamp{
             self.timestamp = timestamp
@@ -57,21 +60,27 @@ class Message{
             let timestamp = dictionary[JSONKeys.timestamp] as? Double else { return nil }
         
         var imageUrl: String?
-        var imageWidth: Double?
-        var imageHeight: Double?
+        var videoUrl: String?
+        var mediaWidth: Double?
+        var mediaHeight: Double?
         
-        if let url = dictionary[JSONKeys.imageUrl] as? String,
-            let width = dictionary[JSONKeys.imageWidth] as? Double,
-            let height = dictionary[JSONKeys.imageHeight] as? Double{
-            
+        if let url = dictionary[JSONKeys.imageUrl] as? String{
             imageUrl = url
-            imageWidth = width
-            imageHeight = height
+        }
+        
+        if let url = dictionary[JSONKeys.videoUrl] as? String{
+            videoUrl = url
+        }
+        
+        if let width = dictionary[JSONKeys.mediaWidth] as? Double,
+            let height = dictionary[JSONKeys.mediaHeight] as? Double{
             
+            mediaWidth = width
+            mediaHeight = height
         }
         
         if let messageId = dictionary[JSONKeys.messageId] as? String{
-            self.init(messageId: messageId, toId: toId, fromId: fromId, message: message, timestamp: timestamp, imageUrl: imageUrl, imageWidth: imageWidth, imageHeight: imageHeight)
+            self.init(messageId: messageId, toId: toId, fromId: fromId, message: message, timestamp: timestamp, imageUrl: imageUrl, videoUrl: videoUrl, mediaWidth: mediaWidth, mediaHeight: mediaHeight)
         }else{
             self.init(toId: toId, fromId: fromId, message: message, timestamp: timestamp)
         }
@@ -86,12 +95,18 @@ class Message{
             JSONKeys.timestamp: timestamp
         ]
         
-        if let imageUrl = imageUrl,
-            let imageWidth = imageWidth,
-            let imageHeight = imageHeight{
+        if let imageUrl = imageUrl{
             messageInfo[JSONKeys.imageUrl] = imageUrl
-            messageInfo[JSONKeys.imageWidth] = imageWidth
-            messageInfo[JSONKeys.imageHeight] = imageHeight
+        }
+        
+        if let videoUrl = videoUrl{
+            messageInfo[JSONKeys.videoUrl] = videoUrl
+        }
+        
+        if let mediaWidth = mediaWidth,
+            let mediaHeight = mediaHeight{
+            messageInfo[JSONKeys.mediaWidth] = mediaWidth
+            messageInfo[JSONKeys.mediaHeight] = mediaHeight
         }
         
         return messageInfo
@@ -114,8 +129,9 @@ extension Message{
         static let fromId = "fromId"
         static let message = "message"
         static let imageUrl = "imageUrl"
-        static let imageWidth = "imageWidth"
-        static let imageHeight = "imageHeight"
+        static let videoUrl = "videoUrl"
+        static let mediaWidth = "mediaWidth"
+        static let mediaHeight = "mediaHeight"
         static let timestamp = "timestamp"
     }
     
