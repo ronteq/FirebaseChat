@@ -515,13 +515,13 @@ extension ChatViewController: UICollectionViewDataSource{
         if messageService.isMessageFromCurrentUser(message){
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! UserChatCell
             cell.delegate = self
-            cell.bubbleWidthAnchor.constant = estimatedFrameForText(message.message).width + ConstraintConstants.widthHeightPlusForEstimation
+            cell.bubbleWidthAnchor.constant = estimatedFrameForText(message.message).width + ConstraintConstants.widthHeightPlusForEstimation + 10
             cell.message = message
             return cell
         }else{
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "incomingCell", for: indexPath) as! InconmingChatCell
             cell.delegate = self
-            cell.bubbleWidthAnchor.constant = estimatedFrameForText(message.message).width + ConstraintConstants.widthHeightPlusForEstimation
+            cell.bubbleWidthAnchor.constant = estimatedFrameForText(message.message).width + ConstraintConstants.widthHeightPlusForEstimation + 10
             cell.message = message
             return cell
         }

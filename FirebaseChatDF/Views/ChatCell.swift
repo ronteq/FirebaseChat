@@ -24,8 +24,13 @@ class ChatCell: UICollectionViewCell{
         view.translatesAutoresizingMaskIntoConstraints = false
         view.layer.cornerRadius = ImageConstraints.cornerRadius
         view.clipsToBounds = true
-        view.backgroundColor = Palette.chatUserColor
         return view
+    }()
+    
+    let bubbleImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
     }()
     
     let activityIndicatorView: UIActivityIndicatorView = {
@@ -59,7 +64,7 @@ class ChatCell: UICollectionViewCell{
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFit
         imageView.layer.cornerRadius = ImageConstraints.cornerRadius
-        imageView.backgroundColor = UIColor.white
+        imageView.backgroundColor = UIColor.clear
         imageView.isUserInteractionEnabled = true
         return imageView
     }()
@@ -116,9 +121,7 @@ extension ChatCell{
     func setupMessageLabel(){
         bubbleView.addSubview(messageText)
         
-        messageText.topAnchor.constraint(equalTo: bubbleView.topAnchor).isActive = true
-        messageText.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 8).isActive = true
-        messageText.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor).isActive = true
+        messageText.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 4).isActive = true
         messageText.heightAnchor.constraint(equalTo: bubbleView.heightAnchor).isActive = true
     }
     

@@ -20,6 +20,22 @@ class UserChatCell: ChatCell{
         bubbleWidthAnchor = bubbleView.widthAnchor.constraint(equalToConstant: frame.width / 2)
         
         bubbleWidthAnchor.isActive = true
+        
+        bubbleView.addSubview(bubbleImageView)
+        
+        bubbleImageView.image = #imageLiteral(resourceName: "rightBubble").resizableImage(withCapInsets: UIEdgeInsets(top: 22, left: 26, bottom: 22, right: 26)).withRenderingMode(.alwaysTemplate)
+        bubbleImageView.tintColor = Palette.chatUserColor
+        
+        bubbleImageView.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor).isActive = true
+        bubbleImageView.topAnchor.constraint(equalTo: bubbleView.topAnchor).isActive = true
+        bubbleImageView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor).isActive = true
+        bubbleImageView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor).isActive = true
     }
     
+    override func setupMessageLabel() {
+        super.setupMessageLabel()
+        
+        messageText.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 8).isActive = true
+        messageText.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor).isActive = true
+    }
 }

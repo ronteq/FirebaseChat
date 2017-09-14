@@ -13,8 +13,6 @@ class InconmingChatCell: ChatCell{
     
     override func setupBubbleView(){
         
-        bubbleView.backgroundColor = UIColor(red: 240/255, green: 240/255, blue: 240/255, alpha: 1.0)
-        
         addSubview(bubbleView)
         
         bubbleView.topAnchor.constraint(equalTo: topAnchor).isActive = true
@@ -23,12 +21,25 @@ class InconmingChatCell: ChatCell{
         bubbleWidthAnchor = bubbleView.widthAnchor.constraint(equalToConstant: frame.width / 2)
         
         bubbleWidthAnchor.isActive = true
+        
+        bubbleView.addSubview(bubbleImageView)
+        
+        bubbleImageView.image = #imageLiteral(resourceName: "leftBubble").resizableImage(withCapInsets: UIEdgeInsets(top: 22, left: 26, bottom: 22, right: 26)).withRenderingMode(.alwaysTemplate)
+        bubbleImageView.tintColor = UIColor(red: 240/255, green: 240/255, blue: 240/255, alpha: 1.0)
+        
+        bubbleImageView.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor).isActive = true
+        bubbleImageView.topAnchor.constraint(equalTo: bubbleView.topAnchor).isActive = true
+        bubbleImageView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor).isActive = true
+        bubbleImageView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor).isActive = true
     }
     
     override func setupMessageLabel() {
         super.setupMessageLabel()
         
         messageText.textColor = UIColor.darkGray
+        
+        messageText.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 12).isActive = true
+        messageText.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor).isActive = true
     }
     
 }
