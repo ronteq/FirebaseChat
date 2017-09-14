@@ -56,6 +56,7 @@ extension HomeViewController{
     
     fileprivate func initialSetup(){
         navigationItem.title = "Home"
+        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
         view.backgroundColor = UIColor.white
         addBarButtonsItems()
     }

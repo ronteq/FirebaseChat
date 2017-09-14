@@ -44,7 +44,7 @@ extension NewMessageViewController{
     
     fileprivate func initialSetup(){
         view.backgroundColor = UIColor.white
-        navigationItem.title = "All users"
+        navigationItem.title = "Users"
         addCancelBarButtonItem()
         setupTableView()
     }

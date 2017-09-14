@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		971A867D1F6AC5040073CD7D /* Palette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 971A867C1F6AC5040073CD7D /* Palette.swift */; };
 		9730170A1F66E76B001AF210 /* InconmingChatCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 973017091F66E76B001AF210 /* InconmingChatCell.swift */; };
 		973121931F688458007F7872 /* ChatCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 973121921F688458007F7872 /* ChatCell.swift */; };
 		9738E4411F604B4400E61D16 /* HomeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9738E4401F604B4400E61D16 /* HomeCell.swift */; };
@@ -31,6 +32,7 @@
 /* Begin PBXFileReference section */
 		2308B3D84268E5A8CD44DF11 /* Pods_FirebaseChatDF.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FirebaseChatDF.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6CACEEE7A0D4A392812AA809 /* Pods-FirebaseChatDF.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FirebaseChatDF.release.xcconfig"; path = "Pods/Target Support Files/Pods-FirebaseChatDF/Pods-FirebaseChatDF.release.xcconfig"; sourceTree = "<group>"; };
+		971A867C1F6AC5040073CD7D /* Palette.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Palette.swift; path = Helpers/Palette.swift; sourceTree = "<group>"; };
 		973017091F66E76B001AF210 /* InconmingChatCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = InconmingChatCell.swift; path = Views/InconmingChatCell.swift; sourceTree = "<group>"; };
 		973121921F688458007F7872 /* ChatCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ChatCell.swift; path = Views/ChatCell.swift; sourceTree = "<group>"; };
 		9738E4401F604B4400E61D16 /* HomeCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = HomeCell.swift; path = Views/HomeCell.swift; sourceTree = "<group>"; };
@@ -66,6 +68,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		971A867B1F6AC4DE0073CD7D /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				971A867C1F6AC5040073CD7D /* Palette.swift */,
+			);
+			name = Helpers;
+			sourceTree = "<group>";
+		};
 		97AB70A21F5F00F10054CA9B = {
 			isa = PBXGroup;
 			children = (
@@ -87,6 +97,7 @@
 		97AB70AD1F5F00F10054CA9B /* FirebaseChatDF */ = {
 			isa = PBXGroup;
 			children = (
+				971A867B1F6AC4DE0073CD7D /* Helpers */,
 				97AB70C61F5F03660054CA9B /* Resources */,
 				97AB70C51F5F035A0054CA9B /* Views */,
 				97AB70C41F5F03500054CA9B /* Controllers */,
@@ -304,6 +315,7 @@
 				9730170A1F66E76B001AF210 /* InconmingChatCell.swift in Sources */,
 				97AB70C81F5F038C0054CA9B /* UserService.swift in Sources */,
 				973121931F688458007F7872 /* ChatCell.swift in Sources */,
+				971A867D1F6AC5040073CD7D /* Palette.swift in Sources */,
 				9738E4411F604B4400E61D16 /* HomeCell.swift in Sources */,
 				97AB70CC1F5F044D0054CA9B /* FirebasePaths.swift in Sources */,
 			);
@@ -431,6 +443,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = KL955RL3SL;
 				INFOPLIST_FILE = FirebaseChatDF/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tektonlabs.FirebaseChatDF;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -445,6 +458,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = KL955RL3SL;
 				INFOPLIST_FILE = FirebaseChatDF/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tektonlabs.FirebaseChatDF;
 				PRODUCT_NAME = "$(TARGET_NAME)";

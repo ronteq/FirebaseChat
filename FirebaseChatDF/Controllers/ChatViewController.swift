@@ -148,7 +148,7 @@ extension ChatViewController{
     
     fileprivate func initialSetup(){
         view.backgroundColor = UIColor.white
-        navigationItem.title = "Chat with \(user.name)"
+        navigationItem.title = user.name
         setupViews()
         setupKeyboardObservers()
         addTapGesture()
@@ -161,7 +161,12 @@ extension ChatViewController{
     fileprivate func setupCollectionView(){
         view.addSubview(collectionView)
         
-        collectionView.topAnchor.constraint(equalTo: view.topAnchor, constant: 64).isActive = true
+        let backgroundImageView = UIImageView(image: #imageLiteral(resourceName: "background"))
+        backgroundImageView.contentMode = .scaleAspectFit
+        
+        collectionView.backgroundColor = UIColor(patternImage: backgroundImageView.image!)
+        
+        collectionView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
@@ -224,6 +229,8 @@ extension ChatViewController{
     
     @objc
     fileprivate func clipImageViewTapped(){
+        
+        messageTextField.resignFirstResponder()
         
         let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
@@ -348,6 +355,7 @@ extension ChatViewController{
     }
     
     fileprivate func goToBottomInCollectionView(){
+        
         let index = messages.count - 1
         
         if index > 1{

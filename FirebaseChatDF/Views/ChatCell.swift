@@ -24,7 +24,7 @@ class ChatCell: UICollectionViewCell{
         view.translatesAutoresizingMaskIntoConstraints = false
         view.layer.cornerRadius = ImageConstraints.cornerRadius
         view.clipsToBounds = true
-        view.backgroundColor = UIColor.orange
+        view.backgroundColor = Palette.chatUserColor
         return view
     }()
     
@@ -49,7 +49,7 @@ class ChatCell: UICollectionViewCell{
         tv.translatesAutoresizingMaskIntoConstraints = false
         tv.font = UIFont.systemFont(ofSize: 16)
         tv.backgroundColor = UIColor.clear
-        tv.textColor = UIColor.white
+        tv.textColor = UIColor.darkGray
         tv.isUserInteractionEnabled = false
         return tv
     }()
