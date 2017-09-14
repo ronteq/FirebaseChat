@@ -21,6 +21,8 @@ class NewMessageViewController: UIViewController {
     
     var users = [User]()
     
+    var usersSelected = [String: User]()
+    
     var homeController: HomeViewController?
     let userService = UserService()
 }
@@ -34,6 +36,8 @@ extension NewMessageViewController{
         
         initialSetup()
         fetchUsers()
+        
+        
     }
     
 }
@@ -46,11 +50,16 @@ extension NewMessageViewController{
         view.backgroundColor = UIColor.white
         navigationItem.title = "Users"
         addCancelBarButtonItem()
+        addNextBarButtonItem()
         setupTableView()
     }
     
     fileprivate func addCancelBarButtonItem(){
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(NewMessageViewController.cancelBarBtnTapped))
+    }
+    
+    fileprivate func addNextBarButtonItem(){
+        navigationItem.rightBarButtonItem?.isEnabled = false
     }
     
     fileprivate func setupTableView(){
@@ -103,7 +112,6 @@ extension NewMessageViewController: UITableViewDataSource{
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
         
         cell.textLabel?.text = users[indexPath.row].name
-        
         return cell
     }
     
@@ -114,9 +122,11 @@ extension NewMessageViewController: UITableViewDataSource{
 extension NewMessageViewController: UITableViewDelegate{
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
         dismiss(animated: true) {
             self.homeController?.pushToChat(user: self.users[indexPath.row])
         }
+        
     }
     
 }

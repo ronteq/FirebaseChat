@@ -63,7 +63,7 @@ extension HomeViewController{
     
     fileprivate func addBarButtonsItems(){
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(HomeViewController.logoutBarBtnTapped))
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "New", style: .plain, target: self, action: #selector(HomeViewController.newBarBtnTapped))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: #imageLiteral(resourceName: "newMessage"), style: .plain, target: self, action: #selector(HomeViewController.newBarBtnTapped))
     }
     
     fileprivate func setupTableView(){
